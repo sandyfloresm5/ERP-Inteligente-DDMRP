@@ -1,0 +1,683 @@
+{
+    "timestamp": "2026-08-19T09:35:18.285215",
+    "data": [
+        {
+            "periodo": "2017-01",
+            "exportaciones_libras": 64303584,
+            "exportaciones_usd": 199045945.5,
+            "precio_promedio_libra": 3.095409821947094
+        },
+        {
+            "periodo": "2017-02",
+            "exportaciones_libras": 66620606,
+            "exportaciones_usd": 206099394.28,
+            "precio_promedio_libra": 3.0936283329515195
+        },
+        {
+            "periodo": "2017-03",
+            "exportaciones_libras": 71869640,
+            "exportaciones_usd": 222036343.91,
+            "precio_promedio_libra": 3.0894316975846823
+        },
+        {
+            "periodo": "2017-04",
+            "exportaciones_libras": 79851780,
+            "exportaciones_usd": 245601181.59,
+            "precio_promedio_libra": 3.0757132976872903
+        },
+        {
+            "periodo": "2017-05",
+            "exportaciones_libras": 85869921,
+            "exportaciones_usd": 262213940.42,
+            "precio_promedio_libra": 3.05361804653343
+        },
+        {
+            "periodo": "2017-06",
+            "exportaciones_libras": 86082995,
+            "exportaciones_usd": 259491252.75999996,
+            "precio_promedio_libra": 3.01443104715397
+        },
+        {
+            "periodo": "2017-07",
+            "exportaciones_libras": 91361157,
+            "exportaciones_usd": 274293480.53,
+            "precio_promedio_libra": 3.002298674150985
+        },
+        {
+            "periodo": "2017-08",
+            "exportaciones_libras": 73629117,
+            "exportaciones_usd": 221409741.70000002,
+            "precio_promedio_libra": 3.0070948929076526
+        },
+        {
+            "periodo": "2017-09",
+            "exportaciones_libras": 67692637,
+            "exportaciones_usd": 207106338.45000005,
+            "precio_promedio_libra": 3.059510570551418
+        },
+        {
+            "periodo": "2017-10",
+            "exportaciones_libras": 88432893,
+            "exportaciones_usd": 268999147.16999996,
+            "precio_promedio_libra": 3.0418449294653285
+        },
+        {
+            "periodo": "2017-11",
+            "exportaciones_libras": 70957849,
+            "exportaciones_usd": 218612937.2,
+            "precio_promedio_libra": 3.080884500881643
+        },
+        {
+            "periodo": "2017-12",
+            "exportaciones_libras": 91911350,
+            "exportaciones_usd": 275721729.26000005,
+            "precio_promedio_libra": 2.999865949743966
+        },
+        {
+            "periodo": "2018-01",
+            "exportaciones_libras": 76740046,
+            "exportaciones_usd": 228251420.48,
+            "precio_promedio_libra": 2.974345630181144
+        },
+        {
+            "periodo": "2018-02",
+            "exportaciones_libras": 76478433,
+            "exportaciones_usd": 225804061.73000008,
+            "precio_promedio_libra": 2.952519460355576
+        },
+        {
+            "periodo": "2018-03",
+            "exportaciones_libras": 83568002,
+            "exportaciones_usd": 250423741.7499999,
+            "precio_promedio_libra": 2.996646273175227
+        },
+        {
+            "periodo": "2018-04",
+            "exportaciones_libras": 106117594,
+            "exportaciones_usd": 315475764.77000004,
+            "precio_promedio_libra": 2.9728884050085043
+        },
+        {
+            "periodo": "2018-05",
+            "exportaciones_libras": 107592012,
+            "exportaciones_usd": 312424062.74,
+            "precio_promedio_libra": 2.903784927267649
+        },
+        {
+            "periodo": "2018-06",
+            "exportaciones_libras": 88303488,
+            "exportaciones_usd": 253377264.18000004,
+            "precio_promedio_libra": 2.8693913447677177
+        },
+        {
+            "periodo": "2018-07",
+            "exportaciones_libras": 97947911,
+            "exportaciones_usd": 281940230.0,
+            "precio_promedio_libra": 2.878471088576866
+        },
+        {
+            "periodo": "2018-08",
+            "exportaciones_libras": 97434163,
+            "exportaciones_usd": 275218913.16999996,
+            "precio_promedio_libra": 2.8246654427564586
+        },
+        {
+            "periodo": "2018-09",
+            "exportaciones_libras": 88599933,
+            "exportaciones_usd": 247966603.73999998,
+            "precio_promedio_libra": 2.7987222489208876
+        },
+        {
+            "periodo": "2018-10",
+            "exportaciones_libras": 98449999,
+            "exportaciones_usd": 276231792.64,
+            "precio_promedio_libra": 2.805807978118923
+        },
+        {
+            "periodo": "2018-11",
+            "exportaciones_libras": 96842610,
+            "exportaciones_usd": 266763496.36000004,
+            "precio_promedio_libra": 2.754608703338335
+        },
+        {
+            "periodo": "2018-12",
+            "exportaciones_libras": 97149564,
+            "exportaciones_usd": 264838171.44000006,
+            "precio_promedio_libra": 2.7260870819759937
+        },
+        {
+            "periodo": "2019-01",
+            "exportaciones_libras": 89192404,
+            "exportaciones_usd": 237806527.17000008,
+            "precio_promedio_libra": 2.6662195041855816
+        },
+        {
+            "periodo": "2019-02",
+            "exportaciones_libras": 99644130,
+            "exportaciones_usd": 267058137.86,
+            "precio_promedio_libra": 2.680119118507031
+        },
+        {
+            "periodo": "2019-03",
+            "exportaciones_libras": 117737601,
+            "exportaciones_usd": 308545725.49,
+            "precio_promedio_libra": 2.620621813841782
+        },
+        {
+            "periodo": "2019-04",
+            "exportaciones_libras": 122841387,
+            "exportaciones_usd": 319096198.45,
+            "precio_promedio_libra": 2.5976277722263097
+        },
+        {
+            "periodo": "2019-05",
+            "exportaciones_libras": 125293328,
+            "exportaciones_usd": 318003984.67999995,
+            "precio_promedio_libra": 2.5380759674609323
+        },
+        {
+            "periodo": "2019-06",
+            "exportaciones_libras": 123967355,
+            "exportaciones_usd": 320166090.89,
+            "precio_promedio_libra": 2.5826645320455532
+        },
+        {
+            "periodo": "2019-07",
+            "exportaciones_libras": 123831883,
+            "exportaciones_usd": 324050947.59999985,
+            "precio_promedio_libra": 2.616861988604339
+        },
+        {
+            "periodo": "2019-08",
+            "exportaciones_libras": 124943552,
+            "exportaciones_usd": 326912721.97,
+            "precio_promedio_libra": 2.6164833377716046
+        },
+        {
+            "periodo": "2019-09",
+            "exportaciones_libras": 112033456,
+            "exportaciones_usd": 284125531.8200001,
+            "precio_promedio_libra": 2.536077542943959
+        },
+        {
+            "periodo": "2019-10",
+            "exportaciones_libras": 116745652,
+            "exportaciones_usd": 305288552.73999995,
+            "precio_promedio_libra": 2.614988631353911
+        },
+        {
+            "periodo": "2019-11",
+            "exportaciones_libras": 135273597,
+            "exportaciones_usd": 364320933.2699999,
+            "precio_promedio_libra": 2.6932153897704065
+        },
+        {
+            "periodo": "2019-12",
+            "exportaciones_libras": 105986034,
+            "exportaciones_usd": 277308728.72,
+            "precio_promedio_libra": 2.6164648138451905
+        },
+        {
+            "periodo": "2020-01",
+            "exportaciones_libras": 109712762,
+            "exportaciones_usd": 283056724.7,
+            "precio_promedio_libra": 2.5799799361536446
+        },
+        {
+            "periodo": "2020-02",
+            "exportaciones_libras": 131998915,
+            "exportaciones_usd": 334212222.10999995,
+            "precio_promedio_libra": 2.5319315852709847
+        },
+        {
+            "periodo": "2020-03",
+            "exportaciones_libras": 115811924,
+            "exportaciones_usd": 290384081.64000005,
+            "precio_promedio_libra": 2.5073763703295358
+        },
+        {
+            "periodo": "2020-04",
+            "exportaciones_libras": 127751797,
+            "exportaciones_usd": 317430911.43999994,
+            "precio_promedio_libra": 2.4847471338504925
+        },
+        {
+            "periodo": "2020-05",
+            "exportaciones_libras": 159145827,
+            "exportaciones_usd": 392124655.53000003,
+            "precio_promedio_libra": 2.463933003596758
+        },
+        {
+            "periodo": "2020-06",
+            "exportaciones_libras": 122263463,
+            "exportaciones_usd": 291154723.3100001,
+            "precio_promedio_libra": 2.38137147571225
+        },
+        {
+            "periodo": "2020-07",
+            "exportaciones_libras": 98311746,
+            "exportaciones_usd": 233305331.41000006,
+            "precio_promedio_libra": 2.3731175663384114
+        },
+        {
+            "periodo": "2020-08",
+            "exportaciones_libras": 115666912,
+            "exportaciones_usd": 269090673.78000003,
+            "precio_promedio_libra": 2.326427403715939
+        },
+        {
+            "periodo": "2020-09",
+            "exportaciones_libras": 118950401,
+            "exportaciones_usd": 275908691.29999995,
+            "precio_promedio_libra": 2.319527206133588
+        },
+        {
+            "periodo": "2020-10",
+            "exportaciones_libras": 141703470,
+            "exportaciones_usd": 337330000.86999995,
+            "precio_promedio_libra": 2.3805345124575985
+        },
+        {
+            "periodo": "2020-11",
+            "exportaciones_libras": 154257289,
+            "exportaciones_usd": 367520430.56,
+            "precio_promedio_libra": 2.38251581460115
+        },
+        {
+            "periodo": "2020-12",
+            "exportaciones_libras": 95557708,
+            "exportaciones_usd": 220352183.37000003,
+            "precio_promedio_libra": 2.3059592782405374
+        },
+        {
+            "periodo": "2021-01",
+            "exportaciones_libras": 101421858,
+            "exportaciones_usd": 238565407.1400002,
+            "precio_promedio_libra": 2.3522089995629956
+        },
+        {
+            "periodo": "2021-02",
+            "exportaciones_libras": 126636641,
+            "exportaciones_usd": 288295658.07000005,
+            "precio_promedio_libra": 2.276557999276055
+        },
+        {
+            "periodo": "2021-03",
+            "exportaciones_libras": 137398429,
+            "exportaciones_usd": 325992264.57,
+            "precio_promedio_libra": 2.372605472585134
+        },
+        {
+            "periodo": "2021-04",
+            "exportaciones_libras": 167273101,
+            "exportaciones_usd": 404490954.6599998,
+            "precio_promedio_libra": 2.418147043618207
+        },
+        {
+            "periodo": "2021-05",
+            "exportaciones_libras": 161190067,
+            "exportaciones_usd": 406308292.1500001,
+            "precio_promedio_libra": 2.520678226096898
+        },
+        {
+            "periodo": "2021-06",
+            "exportaciones_libras": 153299074,
+            "exportaciones_usd": 414774773.7900001,
+            "precio_promedio_libra": 2.705657398752455
+        },
+        {
+            "periodo": "2021-07",
+            "exportaciones_libras": 162826458,
+            "exportaciones_usd": 459572273.56,
+            "precio_promedio_libra": 2.8224668104000643
+        },
+        {
+            "periodo": "2021-08",
+            "exportaciones_libras": 152297115,
+            "exportaciones_usd": 441272957.15000015,
+            "precio_promedio_libra": 2.8974479073356063
+        },
+        {
+            "periodo": "2021-09",
+            "exportaciones_libras": 164254725,
+            "exportaciones_usd": 493016057.3799999,
+            "precio_promedio_libra": 3.00153348635785
+        },
+        {
+            "periodo": "2021-10",
+            "exportaciones_libras": 155185007,
+            "exportaciones_usd": 485194548.27,
+            "precio_promedio_libra": 3.1265555716345714
+        },
+        {
+            "periodo": "2021-11",
+            "exportaciones_libras": 188165830,
+            "exportaciones_usd": 582151974.1099998,
+            "precio_promedio_libra": 3.0938240705552107
+        },
+        {
+            "periodo": "2021-12",
+            "exportaciones_libras": 95557708,
+            "exportaciones_usd": 220352183.37000003,
+            "precio_promedio_libra": 2.3059592782405374
+        },
+        {
+            "periodo": "2022-01",
+            "exportaciones_libras": 161094284,
+            "exportaciones_usd": 470006158.9799998,
+            "precio_promedio_libra": 2.917584332042469
+        },
+        {
+            "periodo": "2022-02",
+            "exportaciones_libras": 180446924,
+            "exportaciones_usd": 532430796.37,
+            "precio_promedio_libra": 2.950622734749416
+        },
+        {
+            "periodo": "2022-03",
+            "exportaciones_libras": 184043936,
+            "exportaciones_usd": 542803777.6,
+            "precio_promedio_libra": 2.9493162849983823
+        },
+        {
+            "periodo": "2022-04",
+            "exportaciones_libras": 182579815,
+            "exportaciones_usd": 538747730.4499999,
+            "precio_promedio_libra": 2.950751869531689
+        },
+        {
+            "periodo": "2022-05",
+            "exportaciones_libras": 208671837,
+            "exportaciones_usd": 610058453.0500002,
+            "precio_promedio_libra": 2.923530371039002
+        },
+        {
+            "periodo": "2022-06",
+            "exportaciones_libras": 209466750,
+            "exportaciones_usd": 599027188.0,
+            "precio_promedio_libra": 2.85977219773544
+        },
+        {
+            "periodo": "2022-07",
+            "exportaciones_libras": 227749024,
+            "exportaciones_usd": 653990770.4800001,
+            "precio_promedio_libra": 2.871541484542213
+        },
+        {
+            "periodo": "2022-08",
+            "exportaciones_libras": 183783270,
+            "exportaciones_usd": 534345749.8799999,
+            "precio_promedio_libra": 2.907477649516193
+        },
+        {
+            "periodo": "2022-09",
+            "exportaciones_libras": 209270183,
+            "exportaciones_usd": 604738273.5500001,
+            "precio_promedio_libra": 2.889748863792985
+        },
+        {
+            "periodo": "2022-10",
+            "exportaciones_libras": 205648136,
+            "exportaciones_usd": 580802945.65,
+            "precio_promedio_libra": 2.824255823305882
+        },
+        {
+            "periodo": "2022-11",
+            "exportaciones_libras": 188596398,
+            "exportaciones_usd": 495790979.33,
+            "precio_promedio_libra": 2.628846492232582
+        },
+        {
+            "periodo": "2022-12",
+            "exportaciones_libras": 197378288,
+            "exportaciones_usd": 490442025.9600001,
+            "precio_promedio_libra": 2.484782044314824
+        },
+        {
+            "periodo": "2023-01",
+            "exportaciones_libras": 225192237,
+            "exportaciones_usd": 431631449.03999996,
+            "precio_promedio_libra": 1.916724371986233
+        },
+        {
+            "periodo": "2023-02",
+            "exportaciones_libras": 206062017,
+            "exportaciones_usd": 509310178.85,
+            "precio_promedio_libra": 2.471635414740214
+        },
+        {
+            "periodo": "2023-03",
+            "exportaciones_libras": 236255622,
+            "exportaciones_usd": 589982368.0500001,
+            "precio_promedio_libra": 2.4972204388431445
+        },
+        {
+            "periodo": "2023-04",
+            "exportaciones_libras": 206800041,
+            "exportaciones_usd": 516304993.93,
+            "precio_promedio_libra": 2.496638740656729
+        },
+        {
+            "periodo": "2023-05",
+            "exportaciones_libras": 236817684,
+            "exportaciones_usd": 573666931.82,
+            "precio_promedio_libra": 2.4223990460948857
+        },
+        {
+            "periodo": "2023-06",
+            "exportaciones_libras": 240986079,
+            "exportaciones_usd": 570758617.6099999,
+            "precio_promedio_libra": 2.3684298278905973
+        },
+        {
+            "periodo": "2023-07",
+            "exportaciones_libras": 220840601,
+            "exportaciones_usd": 503906047.98,
+            "precio_promedio_libra": 2.2817636145628857
+        },
+        {
+            "periodo": "2023-08",
+            "exportaciones_libras": 217441748,
+            "exportaciones_usd": 489472611.02,
+            "precio_promedio_libra": 2.251051674860524
+        },
+        {
+            "periodo": "2023-09",
+            "exportaciones_libras": 236691628,
+            "exportaciones_usd": 547886534.1800001,
+            "precio_promedio_libra": 2.314769384999118
+        },
+        {
+            "periodo": "2023-10",
+            "exportaciones_libras": 216287609,
+            "exportaciones_usd": 495078500.28000003,
+            "precio_promedio_libra": 2.2889822610226367
+        },
+        {
+            "periodo": "2023-11",
+            "exportaciones_libras": 216042043,
+            "exportaciones_usd": 471702913.96000004,
+            "precio_promedio_libra": 2.1833848051510976
+        },
+        {
+            "periodo": "2023-12",
+            "exportaciones_libras": 233231853,
+            "exportaciones_usd": 502499848.6299999,
+            "precio_promedio_libra": 2.1545078091456054
+        },
+        {
+            "periodo": "2024-01",
+            "exportaciones_libras": 196676284,
+            "exportaciones_usd": 431631449.03999996,
+            "precio_promedio_libra": 2.194628860488334
+        },
+        {
+            "periodo": "2024-02",
+            "exportaciones_libras": 201461305,
+            "exportaciones_usd": 453336476.48,
+            "precio_promedio_libra": 2.250240940710674
+        },
+        {
+            "periodo": "2024-03",
+            "exportaciones_libras": 202473619,
+            "exportaciones_usd": 460131615.48999983,
+            "precio_promedio_libra": 2.2725509513908566
+        },
+        {
+            "periodo": "2024-04",
+            "exportaciones_libras": 246220925,
+            "exportaciones_usd": 539056871.42,
+            "precio_promedio_libra": 2.1893219328129807
+        },
+        {
+            "periodo": "2024-05",
+            "exportaciones_libras": 275347813,
+            "exportaciones_usd": 602227046.5,
+            "precio_promedio_libra": 2.187150280725128
+        },
+        {
+            "periodo": "2024-06",
+            "exportaciones_libras": 236535209,
+            "exportaciones_usd": 523728067.525,
+            "precio_promedio_libra": 2.2141653656517577
+        },
+        {
+            "periodo": "2024-07",
+            "exportaciones_libras": 214697316,
+            "exportaciones_usd": 480539138.24,
+            "precio_promedio_libra": 2.238216793730202
+        },
+        {
+            "periodo": "2024-08",
+            "exportaciones_libras": 229869247,
+            "exportaciones_usd": 513808828.35,
+            "precio_promedio_libra": 2.2352221319539973
+        },
+        {
+            "periodo": "2024-09",
+            "exportaciones_libras": 209908753,
+            "exportaciones_usd": 469609820.53,
+            "precio_promedio_libra": 2.2372093293794184
+        },
+        {
+            "periodo": "2024-10",
+            "exportaciones_libras": 189754392,
+            "exportaciones_usd": 440920579.88,
+            "precio_promedio_libra": 2.323638337077331
+        },
+        {
+            "periodo": "2024-11",
+            "exportaciones_libras": 260146955,
+            "exportaciones_usd": 637745563.21,
+            "precio_promedio_libra": 2.45148194492609
+        },
+        {
+            "periodo": "2024-12",
+            "exportaciones_libras": 208127209,
+            "exportaciones_usd": 515712023.59,
+            "precio_promedio_libra": 2.477869309197338
+        },
+        {
+            "periodo": "2025-01",
+            "exportaciones_libras": 225192237,
+            "exportaciones_usd": 544523353.17,
+            "precio_promedio_libra": 2.418037852565939
+        },
+        {
+            "periodo": "2025-02",
+            "exportaciones_libras": 244773933,
+            "exportaciones_usd": 588784834.12,
+            "precio_promedio_libra": 2.405422942319598
+        },
+        {
+            "periodo": "2025-03",
+            "exportaciones_libras": 249652448,
+            "exportaciones_usd": 610022218.698,
+            "precio_promedio_libra": 2.443485828338443
+        },
+        {
+            "periodo": "2025-04",
+            "exportaciones_libras": 253851773,
+            "exportaciones_usd": 606151241.77,
+            "precio_promedio_libra": 2.387815671352431
+        },
+        {
+            "periodo": "2025-05",
+            "exportaciones_libras": 334047679,
+            "exportaciones_usd": 785190445.78,
+            "precio_promedio_libra": 2.350534055888471
+        },
+        {
+            "periodo": "2025-06",
+            "exportaciones_libras": 277945142,
+            "exportaciones_usd": 659340731.248,
+            "precio_promedio_libra": 2.372197357016587
+        },
+        {
+            "periodo": "2025-07",
+            "exportaciones_libras": 236828386,
+            "exportaciones_usd": 568191194.97,
+            "precio_promedio_libra": 2.399168463572606
+        },
+        {
+            "periodo": "2025-08",
+            "exportaciones_libras": 236842391,
+            "exportaciones_usd": 580596343.64,
+            "precio_promedio_libra": 2.45140382677525
+        },
+        {
+            "periodo": "2025-09",
+            "exportaciones_libras": 229724611,
+            "exportaciones_usd": 571165905.015,
+            "precio_promedio_libra": 2.486306985258101
+        },
+        {
+            "periodo": "2025-10",
+            "exportaciones_libras": 255976742,
+            "exportaciones_usd": 650457489.14,
+            "precio_promedio_libra": 2.541080428080454
+        },
+        {
+            "periodo": "2025-11",
+            "exportaciones_libras": 271180464,
+            "exportaciones_usd": 679839844.106,
+            "precio_promedio_libra": 2.506964676135372
+        },
+        {
+            "periodo": "2025-12",
+            "exportaciones_libras": 258137081,
+            "exportaciones_usd": 630450452.71,
+            "precio_promedio_libra": 2.442308754200254
+        },
+        {
+            "periodo": "2026-01",
+            "exportaciones_libras": 276051015,
+            "exportaciones_usd": 662758390.17,
+            "precio_promedio_libra": 2.400854748423946
+        },
+        {
+            "periodo": "2026-02",
+            "exportaciones_libras": 254960421,
+            "exportaciones_usd": 619043853.582,
+            "precio_promedio_libra": 2.427999809358646
+        },
+        {
+            "periodo": "2026-03",
+            "exportaciones_libras": 279674638,
+            "exportaciones_usd": 683947907.781,
+            "precio_promedio_libra": 2.445512802562383
+        },
+        {
+            "periodo": "2026-04",
+            "exportaciones_libras": 298735131,
+            "exportaciones_usd": 711568825.44,
+            "precio_promedio_libra": 2.381938886993509
+        },
+        {
+            "periodo": "2026-05",
+            "exportaciones_libras": 364949874,
+            "exportaciones_usd": 846630195.4,
+            "precio_promedio_libra": 2.3198533708769
+        }
+    ]
+}

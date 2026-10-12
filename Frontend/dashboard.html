@@ -1,0 +1,1657 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Cargill Planning — Simulador Inteligente de Abastecimiento</title>
+<style>
+:root{
+  --emerald-900:#0A2E22;
+  --emerald-700:#0F5F44;
+  --emerald-600:#188256;
+  --emerald-500:#199161;
+  --emerald-400:#5cc795;
+  --emerald-100:#D2ECDE;
+  --emerald-50:#E7F5EE;
+  --gray-900:#181A18;
+  --gray-600:#1f1f1b;
+  --gray-400:#13130e;
+  --gray-200:#CBD6CF;
+  --gray-100:#E6EDE8;
+  --red-700:#A32B2B;
+  --red-100:#F3D3D3;
+  --amber-700:#A15F09;
+  --amber-100:#FCE9CD;
+  --amber-border:#E3B968;
+  --navy-900:#0f1d38;
+  --white:#FFFFFF;
+  --radius:16px;
+
+  /* alias — algunos módulos de dashboard.js usan estos nombres */
+  --brand-900:var(--emerald-900);
+  --brand-700:var(--emerald-700);
+  --brand-600:var(--emerald-600);
+  --brand-500:var(--emerald-500);
+  --brand-tint:var(--emerald-50);
+  --brand-tint-border:var(--emerald-100);
+  --ink:var(--gray-900);
+  --ink-soft:var(--gray-600);
+  --ink-faint:var(--gray-400);
+  --line:var(--gray-200);
+  --line-soft:var(--gray-100);
+  --surface:var(--white);
+  --bg:var(--gray-100);
+  --amber:var(--amber-700);
+  --amber-tint:var(--amber-100);
+  --amber-line:var(--amber-border);
+  --red:var(--red-700);
+  --red-tint:var(--red-100);
+  --slate:var(--navy-900);
+
+  /* tokens complementarios usados por el Simulador (Centro de Decisiones) */
+  --emerald-800:#0D4636;
+  --gray-700:#2C2C29;
+  --gray-500:#4A4A45;
+  --gray-300:#A8AEAA;
+  --gray-150:#DCE6E0;
+  --gray-50:#EFF4F1;
+  --red-600:#C1454B;
+  --red-line:#E3AFAF;
+  --blue-700:#2E6098;
+  --radius-sm:8px;
+  --shadow-1:0 2px 6px rgba(10,46,34,0.10);
+  --mono:'Consolas','SF Mono',monospace;
+}
+*{box-sizing:border-box;}
+html{zoom: 1;}
+
+body{margin:0;font-family:Calibri,'Segoe UI',Arial,sans-serif;color:var(--gray-900);font-size:16px;
+  background:
+    radial-gradient(1200px circle at 90% -10%, rgba(24,130,86,0.38), transparent 52%),
+    radial-gradient(1000px circle at -8% 20%, rgba(15,95,68,0.28), transparent 50%),
+    radial-gradient(800px circle at 60% 108%, rgba(76,180,131,0.22), transparent 55%),
+    radial-gradient(600px circle at 25% 60%, rgba(217,164,65,0.12), transparent 50%),
+    var(--gray-100);
+  background-attachment:fixed;}
+.layout{display:flex;min-height:100vh;}
+
+.sidebar{width:260px;background:var(--emerald-900);color:#fff;flex-shrink:0;padding:26px 0;
+  box-shadow:2px 0 10px rgba(0,0,0,0.12);position:sticky;top:0;min-height:100vh;overflow-y:auto;}
+
+.sidebar-brand{padding:0 22px 22px;border-bottom:1px solid rgba(255,255,255,0.12);margin-bottom:18px;}
+.sidebar-brand .name{font-size:16px;font-weight:bold;}
+.sidebar-brand .sub{font-size:13px;color:#9FCBB8;margin-top:10px;font-weight:bold;letter-spacing:.3px;}
+.nav-item{padding:13px 22px;font-size:15px;color:#CFE3D8;cursor:pointer;border-left:3px solid transparent;
+  transition:all .15s;display:flex;align-items:center;gap:10px;}
+.nav-item .ico{font-size:15px;width:18px;text-align:center;opacity:.85;}
+.nav-item:hover{background:rgba(255,255,255,0.06);color:#fff;}
+.nav-item.active{background:rgba(255,255,255,0.10);color:#fff;font-weight:bold;border-left:3px solid var(--emerald-500);}
+.nav-item .badge{margin-left:auto;background:var(--red-700);color:#fff;font-size:10px;padding:1px 6px;border-radius:8px;}
+.nav-sep{height:1px;background:rgba(255,255,255,0.10);margin:14px 22px;}
+
+.main{flex:1;padding:22px 32px 60px;max-width:none;min-width:0;}
+.topbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;
+  padding-bottom:14px;border-bottom:1px solid var(--gray-200);flex-wrap:wrap;gap:10px;}
+.topbar h1{margin:0;font-size:23px;font-weight:800;color:var(--emerald-900);letter-spacing:-.3px;}
+.topbar-right{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+.updated{font-size:12px;color:var(--gray-400);}
+.risk-pill{background:var(--amber-100);border:1px solid var(--amber-border);color:var(--amber-700);font-size:12px;font-weight:bold;padding:5px 12px;border-radius:16px;}
+
+.screen{display:none;}
+.screen.active{display:block;animation:fade .15s ease-in;}
+@keyframes fade{from{opacity:0}to{opacity:1}}
+
+.kpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:16px;}
+.card{background:var(--white);border:1px solid var(--gray-200);border-radius:var(--radius);padding:16px 18px;
+  box-shadow:0 2px 6px rgba(10,46,34,0.09);transition:box-shadow .15s,transform .15s;position:relative;overflow:hidden;}
+.card:hover{box-shadow:0 8px 22px rgba(10,46,34,0.16);transform:translateY(-1px);}
+.card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;
+  background:linear-gradient(90deg,var(--emerald-600),var(--emerald-400));
+  opacity:0;transition:opacity .15s;}
+.card:hover::before{opacity:1;}
+
+#hoy .kpi-row .card{background:rgba(255,255,255,.72);backdrop-filter:blur(16px) saturate(160%);
+  -webkit-backdrop-filter:blur(16px) saturate(160%);border-color:rgba(255,255,255,.6);
+  box-shadow:0 8px 26px rgba(11,46,36,.08),inset 0 1px 0 rgba(255,255,255,.7);}
+#hoy .kpi-row .card:hover{box-shadow:0 12px 32px rgba(11,46,36,.14),inset 0 1px 0 rgba(255,255,255,.7);}
+.kpi-label{font-size:12.5px;color:var(--gray-600);margin:0 0 8px;font-weight:bold;
+  letter-spacing:.4px;text-transform:uppercase;}
+.kpi-value{font-size:22px;font-weight:700;margin:0;color:var(--emerald-900);letter-spacing:-.3px;
+  font-family:'Consolas','SF Mono',monospace;}
+.kpi-value.danger{color:var(--red-700);}
+.kpi-value.neutral{color:var(--gray-900);}
+.kpi-sub{font-size:12.5px;color:var(--gray-400);margin:6px 0 0;}
+.kpi-trend{font-size:11px;color:var(--emerald-600);font-weight:bold;}
+
+.alert-banner{background:var(--amber-100);border:1px solid var(--amber-border);border-radius:var(--radius);padding:12px 16px;margin-bottom:18px;font-size:13px;color:var(--amber-700);}
+.alert-banner b{color:var(--gray-900);}
+.alert-banner.clickable{cursor:pointer;transition:background .12s;}
+.alert-banner.clickable:hover{background:#F6E4C4;}
+
+.grid-2{display:grid;grid-template-columns:1fr 1.5fr;gap:16px;margin-bottom:16px;}
+.panel-title{font-size:14px;font-weight:bold;margin:0 0 2px;}
+.panel-sub{font-size:13px;color:var(--gray-600);margin:0 0 14px;}
+
+table{width:100%;border-collapse:collapse;font-size:14px;}
+th{text-align:left;font-weight:bold;color:var(--gray-600);padding:6px 8px;border-bottom:1px solid var(--gray-200);
+  position:sticky;top:0;background:var(--white);z-index:1;}
+td{padding:9px 8px;border-bottom:1px solid var(--gray-200);}
+tr:last-child td{border-bottom:none;}
+tr.clickable-row{cursor:pointer;}
+tr.clickable-row:hover{background:var(--emerald-50);}
+.ranking-cliente.clickable-row{cursor:pointer;transition:box-shadow .15s;}
+.ranking-cliente.clickable-row:hover{box-shadow:inset 3px 0 0 var(--emerald-600);background:var(--emerald-50);}
+.pill{display:inline-block;padding:2px 9px;border-radius:5px;font-size:11px;font-weight:bold;}
+.pill-red{background:var(--red-100);color:var(--red-700);}
+.pill-amber{background:var(--amber-100);color:var(--amber-700);}
+.pill-green{background:var(--emerald-100);color:var(--emerald-700);}
+.pill-blue{background:rgba(46,96,152,.12);color:var(--blue-700);}
+.pill-purple{background:rgba(124,58,237,.12);color:#6D28D9;}
+.num-right{text-align:center;font-weight:bold;font-family:'Consolas','SF Mono',monospace;}
+
+.filters{display:flex;gap:14px;margin-bottom:18px;flex-wrap:wrap;align-items:flex-end;}
+.filter{flex:1;min-width:160px;position:relative;}
+.filter label{display:block;font-size:14px;color:var(--gray-600);margin-bottom:4px;font-weight:bold;}
+.filter-static{background:var(--emerald-50);border:1px solid var(--gray-200);border-radius:6px;
+  padding:8px 10px;font-size:13px;color:var(--emerald-900);font-weight:bold;}
+.combo-panel{position:absolute;top:100%;left:0;right:0;background:var(--white);border:1px solid var(--gray-200);border-radius:6px;margin-top:4px;max-height:220px;overflow-y:auto;box-shadow:0 4px 10px rgba(0,0,0,.10);z-index:50;display:none;}
+.combo-panel.open{display:block;}
+.combo-item{padding:8px 10px;font-size:13px;cursor:pointer;}
+.combo-item:hover,.combo-item.highlight{background:var(--emerald-50);}
+.combo-empty{padding:8px 10px;font-size:12px;color:var(--gray-400);}
+select{width:100%;padding:9px 11px;border:1px solid var(--gray-200);border-radius:9px;font-family:inherit;font-size:13.5px;background:var(--white);color:var(--gray-900);transition:border-color .15s,box-shadow .15s;}
+input[type="text"],input[type="number"],input[type="date"]{width:100%;padding:9px 11px;border:1px solid var(--gray-200);border-radius:9px;font-family:inherit;font-size:13.5px;background:var(--white);color:var(--gray-900);transition:border-color .15s,box-shadow .15s;}
+input[type="text"]:focus,input[type="number"]:focus,input[type="date"]:focus,select:focus{outline:none;border-color:var(--emerald-500);box-shadow:0 0 0 3px rgba(46,139,107,0.14);}
+input[type="text"]:disabled{background:var(--gray-100);color:var(--gray-400);}
+input[type="number"]{font-family:'Consolas','SF Mono',monospace;}
+
+.chart-wrap{position:relative;width:100%;height:230px;}
+.chart-wrap.tall{height:320px;}
+
+.justif-row{display:flex;justify-content:space-between;font-size:13px;padding:11px 0;}
+.justif-row span:first-child{color:var(--gray-600);}
+.justif-row span:last-child{font-weight:bold;}
+.bar-label{display:flex;justify-content:space-between;font-size:13px;margin-bottom:4px;}
+.bar-track{background:var(--gray-100);border-radius:8px;height:8px;overflow:hidden;margin-bottom:14px;}
+.bar-fill{background:var(--emerald-600);height:100%;}
+.bar-fill.muted{background:var(--gray-400);}
+
+.footer-note{background:var(--emerald-50);border-left:3px solid var(--emerald-700);padding:14px 18px;border-radius:0 var(--radius) var(--radius) 0;margin-top:8px;}
+.footer-note p{margin:0;font-size:18px;color:var(--emerald-900);}
+.footer-note p.strong{font-weight:bold;margin-bottom:4px;}
+.badge-top{font-size:11px;background:var(--emerald-100);color:var(--emerald-700);padding:3px 10px;border-radius:5px;font-weight:bold;}
+
+.oni-official-box{background:var(--emerald-50);border:1px solid var(--gray-200);border-radius:var(--radius);padding:14px 16px;}
+.oni-official-box .estado{font-size:16px;font-weight:bold;color:var(--emerald-900);margin:0 0 6px;}
+.oni-official-box .fecha{font-size:13px;color:var(--gray-400);margin:0 0 10px;}
+.oni-official-box .texto{font-size:14.5px;color:var(--gray-900);line-height:1.55;white-space:pre-wrap;}
+
+.buffer-zonas{display:flex;flex-direction:column;width:160px;border-radius:6px;overflow:hidden;
+  border:1px solid var(--gray-200);}
+.buffer-zona{display:flex;flex-direction:column;align-items:center;justify-content:center;
+  color:#fff;font-weight:bold;font-size:11px;text-align:center;padding:6px;min-height:40px;line-height:1.3;}
+.buffer-zona small{font-weight:normal;opacity:.9;font-size:10px;}
+.zona-verde{background:var(--emerald-600);}
+.zona-amarilla{background:#D9A441;}
+.zona-roja{background:#B54B4B;}
+
+.buffer-topes{font-size:13px;color:var(--gray-600);margin-top:10px;line-height:1.7;}
+.buffer-topes b{color:var(--gray-900);}
+
+.formula-box{background:var(--gray-100);border:1px solid var(--gray-200);border-radius:6px;
+  padding:12px 14px;font-family:Consolas,'Courier New',monospace;font-size:12px;
+  color:var(--gray-900);line-height:1.75;white-space:pre-wrap;}
+.formula-box .res{color:var(--emerald-700);font-weight:bold;}
+
+.aviso-box{background:var(--emerald-50);border-left:3px solid var(--emerald-700);
+  padding:12px 16px;border-radius:0 var(--radius) var(--radius) 0;margin-bottom:16px;
+  font-size:13px;color:var(--emerald-900);line-height:1.5;}
+.aviso-box.warn{background:var(--amber-100);border-left-color:var(--amber-border);
+  color:var(--amber-700);}
+
+.tabs{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;}
+.tab{background:var(--white);border:1px solid var(--gray-200);border-radius:999px;
+  padding:8px 20px;font-size:14px;font-weight:bold;color:var(--gray-600);cursor:pointer;
+  transition:all .15s;}
+.tab:hover{background:var(--emerald-50);border-color:var(--emerald-500);}
+.tab.active{background:var(--emerald-700);border-color:var(--emerald-700);color:#fff;
+  box-shadow:0 2px 8px rgba(19,77,59,0.28);}
+.tabs.sub-tabs{margin-bottom:14px;}
+.tabs.sub-tabs .tab{padding:6px 16px;font-size:13px;}
+
+.nodo-panel{display:none;}
+.nodo-panel.active{display:block;}
+
+.nota-inline{font-size:12px;color:var(--gray-600);margin-top:12px;line-height:1.5;}
+.nota-inline b{color:var(--gray-900);}
+
+.zona-pill{display:inline-block;padding:3px 10px;border-radius:5px;font-size:11px;
+  font-weight:bold;color:#fff;white-space:nowrap;}
+.zp-rojo{background:#B54B4B;}
+.zp-amarillo{background:#D9A441;}
+.zp-verde{background:var(--emerald-600);}
+.zp-sobre{background:#5B7FA6;}
+.zp-sin{background:var(--gray-400);}
+
+.barra-nfp{position:relative;height:22px;background:var(--gray-100);
+  border-radius:4px;min-width:130px;}
+.barra-nfp .seg{position:absolute;top:0;height:100%;}
+.barra-nfp .seg-rojo{background:rgba(181,75,75,.30);left:0;border-radius:4px 0 0 4px;}
+.barra-nfp .seg-amarillo{background:rgba(217,164,65,.30);}
+.barra-nfp .seg-verde{background:rgba(31,110,82,.22);border-radius:0 4px 4px 0;}
+.barra-nfp .marca{position:absolute;top:-3px;width:3px;height:28px;border-radius:2px;}
+.barra-nfp .marca-nfp{background:var(--navy-900);}
+.barra-nfp .marca-onhand{background:#E07B39;}
+
+.leyenda-marcas{font-size:12px;color:var(--gray-600);margin-top:10px;line-height:1.6;}
+.leyenda-marcas .m{display:inline-block;width:10px;height:10px;border-radius:2px;
+  margin-right:4px;vertical-align:middle;}
+
+.hoy-hero{background:linear-gradient(150deg,var(--emerald-900) 20%,var(--emerald-700) 85%);
+  color:#fff;border-radius:22px;padding:28px 32px;margin-bottom:18px;position:relative;overflow:hidden;
+  box-shadow:0 16px 40px rgba(11,46,36,0.28),inset 0 1px 0 rgba(255,255,255,.08);}
+.hoy-hero::before{content:'';position:absolute;top:-25%;right:-8%;width:65%;height:150%;
+  background:radial-gradient(circle,rgba(95,165,127,.55),transparent 68%);pointer-events:none;}
+.hoy-hero::after{content:'';position:absolute;bottom:-50%;left:-12%;width:55%;height:150%;
+  background:radial-gradient(circle,rgba(255,255,255,.10),transparent 70%);pointer-events:none;}
+.hoy-hero h2{margin:0 0 4px;font-size:24px;font-weight:800;letter-spacing:-.3px;position:relative;}
+.hoy-hero p{margin:0;font-size:14px;color:#9FCBB8;position:relative;}
+.hoy-kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-top:22px;position:relative;}
+.hoy-kpis .k{background:rgba(255,255,255,.10);border:1px solid rgba(255,255,255,.16);
+  border-radius:16px;padding:16px 18px;transition:background .18s,transform .18s;
+  backdrop-filter:blur(14px) saturate(140%);-webkit-backdrop-filter:blur(14px) saturate(140%);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.14),0 4px 14px rgba(0,0,0,.10);}
+.hoy-kpis .k:hover{background:rgba(255,255,255,.16);transform:translateY(-2px);}
+.hoy-kpis .k .n{font-size:22px;font-weight:700;line-height:1.15;}
+.hoy-kpis .k .l{font-size:11.5px;color:#BEDCCF;margin-top:5px;text-transform:uppercase;letter-spacing:.3px;}
+.hoy-kpis .k.alerta .n{color:#FFB4A8;}
+
+.cola{background:var(--white);border:1px solid var(--gray-200);
+  border-left:4px solid var(--gray-200);border-radius:var(--radius);
+  padding:16px 18px;margin-bottom:16px;box-shadow:0 1px 3px rgba(11,46,36,0.06);}
+.cola.critica{border-left-color:#B54B4B;}
+.cola.repone{border-left-color:#D9A441;}
+.cola.mto{border-left-color:#5B7FA6;}
+.cola.estrategica{border-left-color:var(--emerald-600);}
+.cola.sobrestock{border-left-color:#5B7FA6;}
+.cola h3{margin:0 0 2px;font-size:16px;}
+.cola .sub{font-size:13.5px;color:var(--gray-600);margin:0 0 12px;}
+.cola .item-sku:last-child{margin-bottom:0;}
+
+.item-sku{display:flex;justify-content:space-between;align-items:center;gap:14px;
+  padding:11px 14px;border:1px solid var(--gray-200);border-radius:6px;
+  margin-bottom:8px;background:var(--white);cursor:pointer;transition:border-color .12s,box-shadow .12s;}
+.item-sku:hover{border-color:var(--emerald-500);box-shadow:0 2px 8px rgba(11,46,36,0.08);}
+.item-sku .izq{display:flex;flex-direction:column;gap:2px;min-width:0;}
+.item-sku .cod{font-weight:bold;font-size:14px;}
+.item-sku .des{font-size:13px;color:var(--gray-600);white-space:nowrap;
+  overflow:hidden;text-overflow:ellipsis;max-width:340px;}
+.item-sku .der{display:flex;gap:22px;align-items:center;flex-shrink:0;flex-wrap:wrap;}
+.item-sku .m{text-align:right;}
+.item-sku .m .v{font-weight:700;font-size:13.5px;color:var(--gray-700);}
+.item-sku .m .e{font-size:11px;color:var(--gray-500);}
+.item-sku .m.principal .v{font-weight:800;font-size:22px;letter-spacing:-.3px;color:var(--gray-900);
+  font-family:'Consolas','SF Mono',monospace;}
+.item-sku .m.principal .e{font-size:12px;color:var(--gray-600);font-weight:600;}
+
+.detalle-cliente{background:var(--gray-100);border:1px solid var(--gray-200);border-top:none;
+  border-radius:0 0 6px 6px;margin:-9px 0 8px;padding-top:6px;}
+.detalle-cliente table{font-size:12px;}
+.detalle-cliente th{font-size:11px;padding:5px 8px;}
+.detalle-cliente td{padding:6px 8px;}
+
+.dia-card{border:1px solid var(--gray-200);border-radius:var(--radius);box-shadow:0 1px 3px rgba(11,46,36,0.06);
+  margin-bottom:12px;overflow:hidden;background:var(--white);}
+.dia-head{display:flex;justify-content:space-between;align-items:center;
+  padding:10px 16px;background:var(--gray-100);cursor:pointer;}
+.dia-head .f{font-weight:bold;font-size:14px;}
+.dia-head .t{font-size:13px;color:var(--gray-600);}
+.dia-body{padding:0 16px 12px;}
+.dia-card.cerrado .dia-body{display:none;}
+
+.barra-linea{display:flex;height:24px;border-radius:4px;overflow:hidden;
+  background:var(--gray-100);margin:6px 0;}
+.barra-linea .seg{display:flex;align-items:center;justify-content:center;
+  font-size:10px;color:#fff;font-weight:bold;overflow:hidden;white-space:nowrap;}
+.seg-pedido{background:var(--emerald-600);}
+.seg-buffer{background:#8FAF9E;}
+.seg-libre{background:var(--gray-200);}
+
+.pill-pedido{background:var(--emerald-100);color:var(--emerald-700);}
+.pill-buffer{background:var(--gray-100);color:var(--gray-600);}
+.pill-pasado{background:var(--gray-200);color:var(--gray-400);}
+
+tr.fila-cubierta{background:rgba(31,110,82,.05);}
+tr.fila-riesgo{background:rgba(181,75,75,.08);}
+tr.fila-plan{background:rgba(46,96,152,.06);}
+tr.fila-tarde{background:rgba(217,164,65,.10);}
+
+.grid-semanal{overflow-x:auto;margin-top:8px;}
+.grid-semanal h4{font-size:13px;font-weight:bold;color:var(--emerald-900);
+  margin:18px 0 8px;padding-left:10px;border-left:3px solid var(--emerald-600);}
+.tabla-semanal{border-collapse:separate;border-spacing:0;font-size:12.5px;min-width:100%;}
+.tabla-semanal thead th{background:var(--emerald-900);color:#fff;font-weight:bold;
+  padding:9px 10px;text-align:center;white-space:nowrap;position:sticky;top:0;}
+.tabla-semanal thead th:first-child,.tabla-semanal thead th:nth-child(2){
+  text-align:left;background:var(--emerald-700);}
+.tabla-semanal td{padding:8px 10px;border-bottom:1px solid var(--gray-200);
+  text-align:center;white-space:nowrap;}
+.tabla-semanal td.desc-cell{text-align:left;font-size:12px;color:var(--gray-600);
+  max-width:220px;overflow:hidden;text-overflow:ellipsis;}
+.tabla-semanal td.sku-cell{text-align:left;font-weight:bold;color:var(--gray-900);}
+.tabla-semanal tbody tr:nth-child(even){background:var(--gray-100);}
+.tabla-semanal tbody tr:hover{background:var(--emerald-50);}
+.celda-tm{display:inline-block;min-width:44px;padding:4px 8px;border-radius:5px;font-weight:bold;}
+.celda-tm.ped{background:var(--emerald-100);color:var(--emerald-700);}
+.celda-tm.buf{background:#EDF2EE;color:#5B7F6C;}
+.celda-tm.pasado{background:var(--gray-200);color:var(--gray-400);}
+.celda-vacia{color:var(--gray-200);}
+
+.colapsable{border:1px solid var(--gray-200);border-radius:var(--radius);overflow:hidden;margin-top:16px;
+  box-shadow:0 1px 3px rgba(11,46,36,0.06);}
+.colapsable-head{display:flex;justify-content:space-between;align-items:center;
+  padding:14px 18px;background:var(--white);cursor:pointer;user-select:none;}
+.colapsable-head:hover{background:var(--emerald-50);}
+.colapsable-head .chev{transition:transform .18s;color:var(--emerald-700);font-size:13px;flex-shrink:0;}
+.colapsable.cerrado .colapsable-head .chev{transform:rotate(-90deg);}
+.colapsable-body{padding:0 18px 18px;}
+.colapsable.cerrado .colapsable-body{display:none;}
+
+/* Tablas "sin buffer" (MTO en PT / proveedor local en MP) — fondo blanco,
+   encabezado oscuro legible, mismo estilo ejecutivo que .tabla-semanal */
+#colapsableMto .colapsable-body,
+#colapsableMpLocal .colapsable-body{background:var(--white);}
+#colapsableMto table thead th,
+#colapsableMpLocal table thead th{
+  background:var(--emerald-900);color:#fff;font-weight:700;
+  padding:10px 8px;border-bottom:none;
+}
+#colapsableMto table thead th:first-child,
+#colapsableMpLocal table thead th:first-child{border-radius:8px 0 0 0;}
+#colapsableMto table thead th:last-child,
+#colapsableMpLocal table thead th:last-child{border-radius:0 8px 0 0;}
+#colapsableMto table tbody tr,
+#colapsableMpLocal table tbody tr{background:var(--white);}
+#colapsableMto table tbody tr:nth-child(even),
+#colapsableMpLocal table tbody tr:nth-child(even){background:var(--gray-100);}
+#colapsableMto table tbody tr:hover,
+#colapsableMpLocal table tbody tr:hover{background:var(--emerald-50);cursor:pointer;}
+#colapsableMto table tbody td,
+#colapsableMpLocal table tbody td{font-size:13px;color:var(--gray-900);padding:10px 8px;}
+#colapsableMto table tbody td:first-child b,
+#colapsableMpLocal table tbody td:first-child b{color:var(--emerald-900);}
+
+.otif-grid{display:grid;grid-template-columns:1fr 1fr auto;gap:18px;align-items:center;}
+.otif-arrow{font-size:26px;color:var(--emerald-600);text-align:center;}
+.otif-delta{font-size:13px;text-align:center;margin-top:6px;font-weight:bold;}
+
+.globo{display:inline-flex;align-items:center;justify-content:center;border-radius:50%;
+  font-size:10px;font-weight:800;color:#fff;width:20px;height:20px;}
+.globo-rojo{background:#B54B4B;}
+.globo-amarillo{background:#D9A441;color:#3a2a05;}
+
+.cfg-note{display:flex;gap:14px;align-items:flex-start;background:var(--red-100);
+  border:2px solid var(--red-700);border-radius:10px;
+  padding:16px 20px;margin-bottom:18px;font-size:13.5px;color:#5a1414;line-height:1.55;}
+.cfg-note .icono{font-size:22px;flex-shrink:0;}
+.cfg-note.conectado{background:var(--emerald-100);border-color:var(--emerald-700);color:var(--emerald-900);}
+.cfg-table-wrap{overflow-x:auto;border-radius:10px;}
+.cfg-table{border-collapse:separate;border-spacing:0;}
+.cfg-table thead th{background:var(--emerald-900);color:#fff;font-weight:bold;
+  padding:10px 10px;white-space:nowrap;border-bottom:none;}
+.cfg-table thead th:first-child{border-radius:8px 0 0 0;}
+.cfg-table thead th:last-child{border-radius:0 8px 0 0;}
+.cfg-table tbody tr:nth-child(even){background:var(--gray-100);}
+.cfg-table tbody tr:hover{background:var(--emerald-50);}
+.cfg-table input,.cfg-table select{padding:7px 9px;font-size:12.5px;}
+.cfg-table td{padding:7px 8px;}
+.cfg-actions{display:flex;gap:10px;margin-top:14px;flex-wrap:wrap;}
+.cfg-grupo .card + .card{margin-top:14px;}
+.btn{font-size:13px;padding:10px 20px;border:none;border-radius:9px;font-weight:bold;cursor:pointer;
+  transition:filter .12s,box-shadow .15s,transform .12s;}
+.btn:hover{filter:brightness(1.08);transform:translateY(-1px);}
+.btn:active{transform:translateY(0);}
+.btn-primary{background:var(--emerald-700);color:#fff;
+  box-shadow:0 4px 12px rgba(19,77,59,0.32);}
+.btn-primary:hover{box-shadow:0 6px 18px rgba(19,77,59,0.4);}
+.btn-secondary{background:var(--white);color:var(--emerald-700);border:1px solid var(--emerald-500);}
+.btn-danger{background:var(--white);color:var(--red-700);border:1px solid var(--red-100);}
+.btn-small{font-size:11.5px;padding:5px 11px;}
+.saved-flash{font-size:12px;color:var(--emerald-700);font-weight:bold;margin-left:10px;opacity:0;transition:opacity .25s;}
+.saved-flash.show{opacity:1;}
+
+.tl-linea-label{font-size:13px;font-weight:bold;color:var(--emerald-900);margin:16px 0 7px;
+  padding-left:9px;border-left:3px solid var(--emerald-600);}
+.tl-fila{display:flex;gap:7px;overflow-x:auto;padding-bottom:8px;}
+.tl-celda{min-width:98px;flex-shrink:0;background:var(--gray-100);border:1.5px dashed var(--gray-200);
+  border-radius:10px;padding:7px;min-height:72px;transition:background .15s,border-color .15s;}
+.tl-celda.sobrevuelo{background:var(--emerald-50);border-color:var(--emerald-500);}
+.tl-celda-fecha{font-size:11px;color:var(--gray-600);font-weight:bold;margin-bottom:6px;text-align:center;
+  text-transform:uppercase;letter-spacing:.3px;}
+.tl-bloque{background:var(--white);border:1px solid var(--gray-200);border-radius:8px;
+  padding:7px 8px;margin-bottom:6px;cursor:grab;font-size:11.5px;
+  box-shadow:0 1px 3px rgba(11,46,36,0.07);transition:box-shadow .15s,transform .15s;}
+.tl-bloque:hover{box-shadow:0 4px 12px rgba(11,46,36,.16);transform:translateY(-1px);}
+.tl-bloque.bloqueada{background:var(--gray-100);cursor:default;opacity:.75;box-shadow:none;}
+.tl-bloque.cargando{opacity:.5;pointer-events:none;}
+.tl-bloque-top{display:flex;justify-content:space-between;font-weight:bold;color:var(--gray-900);}
+.tl-bloque-tm{color:var(--emerald-700);margin-top:3px;font-weight:700;
+  font-family:'Consolas','SF Mono',monospace;}
+
+/* --- Matriz de perfil de buffer (lead time x variabilidad, lenguaje plano) --- */
+.perfil-matriz{border-collapse:separate;border-spacing:6px;}
+.perfil-matriz th{background:transparent;border:none;font-size:11.5px;color:var(--gray-600);
+  text-transform:uppercase;letter-spacing:.3px;padding:4px 8px;}
+.perfil-celda{width:136px;height:58px;border:1px solid var(--gray-200);border-radius:10px;
+  background:var(--white);cursor:pointer;text-align:center;vertical-align:middle;
+  font-size:12px;color:var(--gray-600);font-weight:600;
+  transition:all .15s;padding:6px;box-shadow:0 1px 2px rgba(11,46,36,0.05);}
+.perfil-celda:hover{border-color:var(--emerald-500);background:var(--emerald-50);
+  transform:translateY(-1px);box-shadow:0 4px 10px rgba(11,46,36,0.1);}
+.perfil-celda.activa{background:linear-gradient(150deg,var(--emerald-600),var(--emerald-900));
+  border-color:var(--emerald-900);color:#fff;font-weight:bold;
+  box-shadow:0 6px 16px rgba(19,77,59,0.35),inset 0 1px 0 rgba(255,255,255,.18);}
+.perfil-celda .factores{display:block;font-size:10.5px;margin-top:4px;opacity:.85;
+  font-family:'Consolas','SF Mono',monospace;}
+
+/* --- Lista de SKU sugeridos para revisar (calculadora de buffer) --- */
+.sug-sku-item{display:flex;justify-content:space-between;align-items:center;gap:14px;
+  padding:12px 16px;border:1px solid var(--gray-200);border-left:4px solid var(--gray-200);
+  border-radius:10px;margin-bottom:9px;background:var(--white);
+  box-shadow:0 1px 3px rgba(11,46,36,0.06);transition:box-shadow .15s,transform .15s;}
+.sug-sku-item:hover{box-shadow:0 6px 16px rgba(11,46,36,0.1);transform:translateY(-1px);}
+.sug-sku-item.urg-alta{border-left-color:#B54B4B;background:linear-gradient(90deg,rgba(181,75,75,0.05),var(--white) 18%);}
+.sug-sku-item.urg-media{border-left-color:#D9A441;background:linear-gradient(90deg,rgba(217,164,65,0.06),var(--white) 18%);}
+.sug-sku-item .info{min-width:0;}
+.sug-sku-item .cod{font-weight:bold;font-size:14px;color:var(--gray-900);}
+.sug-sku-item .desc{font-size:12px;color:var(--gray-600);font-weight:normal;}
+.sug-sku-item .motivo{font-size:12.5px;color:var(--gray-600);margin-top:4px;line-height:1.4;}
+.sug-sku-item .motivo b{color:var(--gray-900);}
+
+/* --- Simulador: listas de ingredientes acumulados --- */
+.sim-item-lista{display:flex;justify-content:space-between;align-items:center;gap:12px;
+  padding:10px 14px;border:1px solid var(--gray-200);border-left:3px solid var(--emerald-500);
+  border-radius:8px;margin-bottom:7px;background:var(--white);font-size:13px;
+  box-shadow:0 1px 2px rgba(11,46,36,0.05);transition:box-shadow .15s;}
+.sim-item-lista:hover{box-shadow:0 3px 10px rgba(11,46,36,0.08);}
+.sim-item-lista .txt{color:var(--gray-900);}
+.sim-item-lista .txt b{color:var(--emerald-900);}
+.sim-item-lista .del{cursor:pointer;color:var(--red-700);font-weight:bold;font-size:15px;
+  flex-shrink:0;padding:2px 7px;border-radius:5px;transition:background .12s;}
+.sim-item-lista .del:hover{background:var(--red-100);}
+.sim-resumen-escenario{background:linear-gradient(135deg,var(--emerald-50),#EAF4EF);
+  border:1px solid var(--emerald-100);border-left:4px solid var(--emerald-600);
+  border-radius:10px;padding:14px 16px;margin-bottom:14px;font-size:13px;color:var(--emerald-900);
+  box-shadow:0 1px 3px rgba(11,46,36,0.05);}
+.sim-resumen-escenario b{display:block;margin-bottom:5px;font-size:11.5px;text-transform:uppercase;
+  letter-spacing:.5px;color:var(--emerald-700);}
+
+@media (max-width:1100px){
+  .kpi-row{grid-template-columns:repeat(2,1fr);}
+  .grid-2{grid-template-columns:1fr;}
+  .otif-grid{grid-template-columns:1fr;}
+}
+
+
+/* --- Simulador: Situación actual (mismo lenguaje que el hero de Hoy) --- */
+.consola-hero{background:linear-gradient(150deg,var(--emerald-900) 20%,var(--emerald-700) 85%);color:#fff;border-radius:22px;
+  padding:22px 26px 24px;margin-bottom:18px;position:relative;overflow:hidden;
+  box-shadow:0 16px 40px rgba(11,46,36,0.28),inset 0 1px 0 rgba(255,255,255,.08);}
+.consola-hero::before{content:'';position:absolute;top:-25%;right:-8%;width:60%;height:150%;
+  background:radial-gradient(circle,rgba(95,165,127,.5),transparent 68%);pointer-events:none;}
+.consola-hero::after{content:'';position:absolute;bottom:-50%;left:-12%;width:55%;height:150%;
+  background:radial-gradient(circle,rgba(255,255,255,.10),transparent 70%);pointer-events:none;}
+.consola-hero-label{position:relative;margin:0 0 14px;font-size:12px;color:#9FCBB8;text-transform:uppercase;letter-spacing:.6px;font-weight:bold;}
+.consola-hero-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;position:relative;}
+.consola-kpi{background:rgba(255,255,255,.10);border:1px solid rgba(255,255,255,.16);border-radius:16px;padding:16px 18px;
+  text-align:left;backdrop-filter:blur(14px) saturate(140%);-webkit-backdrop-filter:blur(14px) saturate(140%);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.14),0 4px 14px rgba(0,0,0,.10);transition:background .18s,transform .18s;}
+.consola-kpi:hover{background:rgba(255,255,255,.16);transform:translateY(-2px);}
+.consola-kpi .v{font-size:28px;font-weight:800;color:#fff;margin:0;line-height:1.1;font-family:'Consolas','SF Mono',monospace;letter-spacing:-.3px;}
+.consola-kpi .v.alerta{color:#FFB4A8;}
+.consola-kpi .l{font-size:11.5px;color:#BEDCCF;margin:6px 0 0;text-transform:uppercase;letter-spacing:.3px;}
+.consola-kpi:has(.v.alerta){border-color:rgba(255,180,168,.45);}
+
+/* ========================================================= SIMULADOR */
+.menu-modulos{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:14px;}
+.menu-modulo{background:#fff;border:1px solid var(--gray-200);border-top:2px solid transparent;border-radius:14px;padding:16px 17px;cursor:pointer;
+  display:flex;flex-direction:column;gap:14px;text-align:left;box-shadow:var(--shadow-1);transition:border-color .15s,box-shadow .15s,transform .15s;}
+.menu-modulo:hover{border-top-color:var(--emerald-500);box-shadow:0 10px 26px rgba(10,46,34,0.16);transform:translateY(-2px);}
+.menu-modulo-ico{width:38px;height:38px;border-radius:9px;background:linear-gradient(155deg,var(--emerald-700),var(--emerald-900));color:#fff;
+  display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0;box-shadow:0 3px 8px rgba(10,46,34,0.22);}
+.menu-modulo-txt .t{font-size:14.5px;font-weight:800;color:var(--emerald-900);margin:0 0 3px;letter-spacing:-.1px;}
+.menu-modulo-txt .s{font-size:12px;color:var(--gray-600);margin:0;line-height:1.4;}
+.sistema-recomienda{display:flex;align-items:center;gap:12px;background:#fff;border:1px solid var(--gray-200);border-left:3px solid var(--amber-700);
+  border-radius:9px;padding:10px 14px;margin-bottom:8px;cursor:pointer;box-shadow:var(--shadow-1);transition:background .12s;}
+.sistema-recomienda:hover{background:var(--amber-100);}
+.sistema-recomienda .ico{font-size:14px;color:var(--amber-700);}
+.sistema-recomienda .txt{flex:1;font-size:12.5px;color:var(--gray-900);}
+.sistema-recomienda .txt b{color:var(--gray-900);font-weight:700;}
+.sistema-recomienda .flecha{font-size:12px;color:var(--amber-700);font-weight:600;white-space:nowrap;}
+#sistemaRecomiendaBox{margin-bottom:6px;}
+.modulo-topbar{margin-bottom:10px;}
+.modulo-volver{font-size:12.5px;color:var(--emerald-700);font-weight:600;cursor:pointer;}
+.modulo-volver:hover{text-decoration:underline;}
+.panel-modulo{display:none;}
+.panel-modulo.activo{display:block;}
+.modulo-pregunta{font-size:22px;font-weight:800;color:var(--emerald-900);margin:0 0 14px;letter-spacing:-.3px;}
+.modulo-subtitulo{font-size:10.5px;font-weight:600;color:var(--gray-500);text-transform:uppercase;letter-spacing:.6px;margin:0 0 8px;}
+.panel-modulo .filters{background:#fff;border:1px solid var(--gray-200);border-radius:var(--radius);padding:10px 14px;box-shadow:var(--shadow-1);}
+
+.vs-row{display:grid;grid-template-columns:1fr auto 1fr;gap:12px;align-items:stretch;margin:0 0 12px;}
+.vs-card{background:#fff;border:1px solid var(--gray-200);border-radius:var(--radius);padding:14px 18px;text-align:left;box-shadow:var(--shadow-1);}
+.vs-card.danger{border-color:var(--red-line);}
+.vs-label{font-size:10.5px;color:var(--gray-500);font-weight:600;text-transform:uppercase;letter-spacing:.5px;margin:0 0 4px;}
+.vs-num{font-size:30px;font-weight:800;color:var(--emerald-900);margin:0;letter-spacing:-.4px;font-family:var(--mono);}
+.vs-card.danger .vs-num{color:var(--red-700);}
+.vs-sub{font-size:11.5px;color:var(--gray-500);margin:4px 0 0;}
+.vs-versus{font-size:11px;font-weight:600;color:var(--gray-400);align-self:center;letter-spacing:.5px;}
+.deficit-banner{display:flex;align-items:center;gap:16px;padding:12px 18px;border-radius:var(--radius);background:var(--amber-100);
+  border:1px solid var(--amber-border);border-left:3px solid var(--amber-700);margin-bottom:12px;text-align:left;}
+.deficit-banner .v{font-size:28px;font-weight:800;color:var(--amber-700);margin:0;letter-spacing:-.4px;font-family:var(--mono);}
+.deficit-banner .l{font-size:11.5px;color:#4A3308;margin:0;text-transform:none;letter-spacing:0;font-weight:500;}
+.resultado-row{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin:0 0 14px;}
+.resultado-card,.resumen-mini{background:#fff;border:1px solid var(--gray-200);border-left:3px solid var(--emerald-500);
+  border-radius:10px;padding:13px 16px;text-align:left;box-shadow:var(--shadow-1);transition:box-shadow .15s,transform .15s;}
+.resultado-card:hover,.resumen-mini:hover{box-shadow:0 6px 16px rgba(10,46,34,0.12);transform:translateY(-1px);}
+.resultado-card:has(.v.danger),.resumen-mini:has(.v.danger){border-left-color:var(--red-600);}
+.resultado-card .v,.resumen-mini .v{font-size:23px;font-weight:800;color:var(--emerald-900);margin:0;letter-spacing:-.3px;font-family:var(--mono);}
+.resultado-card .v.danger,.resumen-mini .v.danger{color:var(--red-700);}
+.resultado-card .l,.resumen-mini .l{font-size:10.5px;color:var(--gray-500);text-transform:uppercase;letter-spacing:.5px;margin:5px 0 0;font-weight:600;}
+.resultado-row[style*="repeat(2"]{margin-top:12px !important;}
+
+.recomendacion-block{background:#fff;border:1px solid var(--gray-200);border-radius:14px;padding:14px 16px;box-shadow:var(--shadow-1);margin-bottom:12px;}
+.recomendacion-titulo{font-size:10.5px;font-weight:600;color:var(--gray-500);text-transform:uppercase;letter-spacing:.6px;margin:0 0 8px;}
+.recomendacion-cols{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+.recomendacion-lista{display:grid;grid-template-columns:repeat(2,1fr);gap:7px 10px;}
+.recomendacion-lista .item{background:var(--gray-50);padding:8px 10px 8px 12px;border-radius:7px;margin:0;font-size:12.5px;font-weight:600;
+  border:1px solid var(--gray-150);border-left-width:3px;transition:background .12s;}
+.recomendacion-lista.mantener .item{color:var(--gray-900);border-left-color:var(--emerald-600);}
+.recomendacion-lista.mantener .item:hover{background:var(--emerald-50);}
+.recomendacion-lista.postergar .item{color:var(--gray-900);border-left-color:var(--red-600);}
+.recomendacion-lista.postergar .item:hover{background:var(--red-100);}
+.recomendacion-lista .sub{font-weight:400;font-size:11.5px;color:var(--gray-600);display:block;margin-top:1px;}
+.recomendado-banner{display:flex;align-items:center;gap:14px;padding:10px 16px;border-radius:14px;background:var(--emerald-50);border:1px solid var(--emerald-100);border-left:3px solid var(--emerald-600);margin:0 0 12px;text-align:left;}
+.recomendado-banner .tag{font-size:10.5px;font-weight:600;color:var(--emerald-700);text-transform:uppercase;letter-spacing:.6px;margin:0;}
+.recomendado-banner .txt{font-size:15px;font-weight:600;color:var(--gray-900);margin:0;}
+.ranking-cliente{display:flex;align-items:center;gap:14px;background:#fff;border:1px solid var(--gray-200);border-top:0;padding:9px 16px;margin:0;box-shadow:none;}
+.ranking-list{border-top:1px solid var(--gray-200);border-radius:var(--radius);overflow:hidden;margin-bottom:12px;box-shadow:var(--shadow-1);}
+.ranking-cliente .num{font-size:12px;font-weight:600;color:var(--gray-500);min-width:26px;height:26px;border-radius:50%;background:var(--gray-100);display:flex;align-items:center;justify-content:center;}
+.ranking-cliente:nth-child(1) .num{background:var(--emerald-700);color:#fff;} .ranking-cliente:nth-child(2) .num{background:var(--emerald-100);color:var(--emerald-700);} .ranking-cliente:nth-child(3) .num{background:var(--emerald-50);color:var(--emerald-700);}
+.ranking-cliente .nombre{flex:1;font-size:13px;font-weight:600;color:var(--gray-900);}
+.ranking-cliente .metricas{display:flex;gap:0;}
+.ranking-cliente .metrica{text-align:right;min-width:120px;padding:0 14px;border-left:1px solid var(--gray-150);}
+.ranking-cliente .metrica .v{font-size:13px;font-weight:600;color:var(--gray-900);}
+.ranking-cliente .metrica .l{font-size:10px;color:var(--gray-500);text-transform:uppercase;letter-spacing:.3px;}
+.bodega-hero{text-align:center;padding:24px;border-radius:var(--radius);background:var(--emerald-900);}
+.bodega-hero.critico{background:#7A2A24;}
+.bodega-hero .pct{font-size:44px;font-weight:600;color:#fff;line-height:1;}
+.bodega-hero .txt{font-size:12px;color:#BEDCCF;text-transform:uppercase;letter-spacing:.6px;margin-top:6px;font-weight:600;}
+.exceso-card{display:flex;align-items:center;gap:14px;background:#fff;border:1px solid var(--gray-200);border-top:0;padding:8px 16px;margin:0;box-shadow:none;}
+#m4TopExcesos{border-top:1px solid var(--gray-200);border-radius:var(--radius);overflow:hidden;margin-bottom:12px;box-shadow:var(--shadow-1);}
+.exceso-card .num{font-size:11.5px;font-weight:600;color:var(--gray-500);min-width:30px;}
+.exceso-card .info{flex:1;}
+.exceso-card .sku{font-weight:600;font-size:13px;color:var(--gray-900);}
+.exceso-card .desc{font-size:11.5px;color:var(--gray-500);}
+.exceso-card .exceso-num{font-size:18px;font-weight:800;color:var(--red-700);font-family:var(--mono);}
+.estado-ok-banner{display:flex;align-items:center;gap:14px;background:var(--emerald-50);border:1px solid var(--emerald-100);border-left:3px solid var(--emerald-600);border-radius:var(--radius);padding:14px 18px;margin-bottom:12px;}
+.estado-ok-banner .check{width:34px;height:34px;border-radius:50%;background:var(--emerald-600);color:#fff;display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0;}
+.estado-ok-banner .txt .t{font-size:14px;font-weight:600;color:var(--gray-900);margin:0 0 2px;}
+.estado-ok-banner .txt .s{font-size:12.5px;color:var(--gray-600);margin:0;line-height:1.5;}
+
+/* --- hero partido: cifra principal + anillo, mejor uso del espacio --- */
+.hero-split{display:grid;grid-template-columns:1fr auto;gap:0;align-items:stretch;background:#fff;
+  border:1px solid var(--gray-200);border-radius:14px;overflow:hidden;box-shadow:var(--shadow-1);margin-bottom:14px;}
+.hero-split-main{padding:18px 22px;display:flex;align-items:center;gap:18px;flex-wrap:wrap;}
+.hero-split-main .num{font-size:36px;font-weight:800;font-family:var(--mono);color:var(--red-700);letter-spacing:-.6px;line-height:1;flex-shrink:0;}
+.hero-split-main .num.ok{color:var(--emerald-700);}
+.hero-split-main .txt{min-width:180px;}
+.hero-split-main .txt .t{font-size:12.5px;font-weight:700;color:var(--gray-600);margin:0 0 8px;text-transform:uppercase;letter-spacing:.4px;}
+.hero-split-main .meta{display:flex;gap:20px;flex-wrap:wrap;}
+.hero-split-main .meta div{font-size:11.5px;color:var(--gray-600);}
+.hero-split-main .meta b{color:var(--gray-900);font-family:var(--mono);}
+.hero-split-ring{background:var(--gray-50);border-left:1px solid var(--gray-200);padding:14px 26px;display:flex;align-items:center;justify-content:center;}
+@media (max-width:1100px){.hero-split{grid-template-columns:1fr;}.hero-split-ring{border-left:0;border-top:1px solid var(--gray-200);}}
+
+/* --- paneles lado a lado (mejor densidad que apilado) --- */
+.modulo-cols-2{display:grid;grid-template-columns:1.15fr .85fr;gap:14px;align-items:start;margin-bottom:4px;}
+.modulo-cols-2 > div{min-width:0;}
+@media (max-width:1100px){.modulo-cols-2{grid-template-columns:1fr;}}
+
+/* --- tarjetas de atención en la portada del simulador --- */
+.atencion-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:16px;}
+.atencion-card{display:flex;align-items:center;gap:14px;background:#fff;border:1px solid var(--gray-200);
+  border-radius:14px;padding:14px 18px;box-shadow:var(--shadow-1);cursor:pointer;transition:box-shadow .15s,transform .15s;}
+.atencion-card:hover{box-shadow:0 10px 26px rgba(10,46,34,0.16);transform:translateY(-2px);}
+.atencion-card .ico{width:38px;height:38px;border-radius:9px;display:flex;align-items:center;justify-content:center;
+  font-size:16px;color:#fff;flex-shrink:0;}
+.atencion-card.critico .ico{background:var(--red-700);}
+.atencion-card.alerta .ico{background:var(--amber-700);}
+.atencion-card .txt{flex:1;min-width:0;}
+.atencion-card .txt .t{font-size:13.5px;font-weight:700;color:var(--gray-900);margin:0 0 3px;}
+.atencion-card .txt .s{font-size:12px;color:var(--gray-600);margin:0;line-height:1.4;}
+.atencion-card .cta{font-size:11.5px;font-weight:700;color:var(--emerald-700);white-space:nowrap;}
+@media (max-width:1100px){.atencion-grid{grid-template-columns:1fr;}}
+
+.conclusion-ejecutiva{background:var(--emerald-900);border-radius:18px;padding:16px 22px 18px;margin:0 0 14px;color:#fff;box-shadow:0 8px 24px rgba(11,46,36,0.18);}
+.conclusion-ejecutiva:empty{display:none;}
+.conclusion-ejecutiva .tag{font-size:10.5px;font-weight:600;color:#8FBFA9;text-transform:uppercase;letter-spacing:.7px;margin:0 0 10px;}
+.conclusion-ejecutiva .pregunta{font-size:11px;font-weight:600;color:#A9CDBB;margin:10px 0 2px;text-transform:uppercase;letter-spacing:.4px;}
+.conclusion-ejecutiva .pregunta:first-of-type{margin-top:0;}
+.conclusion-ejecutiva .respuesta{font-size:13px;color:#fff;margin:0;line-height:1.5;}
+.conclusion-ejecutiva .pregunta:nth-of-type(6) + .respuesta{font-weight:600;}
+.conclusion-ejecutiva{display:grid;grid-template-columns:220px 1fr;gap:0 24px;align-items:stretch;}
+.conclusion-ejecutiva .tag{grid-column:1 / -1;}
+.conclusion-ejecutiva .pregunta,.conclusion-ejecutiva .respuesta{margin:0;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.09);}
+.conclusion-ejecutiva .pregunta{padding-top:10px;}
+.conclusion-ejecutiva .respuesta:last-child,.conclusion-ejecutiva .pregunta:nth-last-child(2){border-bottom:0;}
+
+.comparacion-alternativas{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:0 0 12px;}
+.alt-card{background:#fff;border:1px solid var(--gray-200);border-radius:var(--radius);padding:14px 16px;box-shadow:var(--shadow-1);position:relative;}
+.alt-card.ganadora{border:2px solid var(--emerald-600);background:linear-gradient(160deg,#fff,var(--emerald-50));}
+.alt-card .titulo{font-size:13.5px;font-weight:600;color:var(--gray-900);margin:0 0 8px;}
+.alt-card .ganadora-tag{display:inline-block;background:var(--emerald-700);color:#fff;font-size:10px;font-weight:600;padding:2px 8px;border-radius:3px;margin-bottom:8px;text-transform:uppercase;letter-spacing:.4px;}
+.alt-card .metrica-fila{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--gray-150);font-size:12.5px;}
+.alt-card .metrica-fila:last-child{border-bottom:none;}
+.alt-card .metrica-fila .l{color:var(--gray-600);}
+.alt-card .metrica-fila .v{font-weight:600;color:var(--gray-900);}
+.alt-card .metrica-fila .v.danger{color:var(--red-700);}
+.alt-card .costo-total{margin-top:8px;padding-top:10px;border-top:2px solid var(--gray-200);display:flex;justify-content:space-between;align-items:center;}
+.alt-card .costo-total .l{font-size:10.5px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--gray-500);}
+.alt-card .costo-total .v{font-size:22px;font-weight:800;color:var(--gray-900);font-family:var(--mono);}
+.alt-card.ganadora .costo-total .v{color:var(--emerald-700);}
+
+/* barra de acción del escenario */
+.action-bar{display:flex;align-items:center;gap:14px;background:#fff;border:1px solid var(--gray-200);border-radius:var(--radius);padding:12px 18px;margin:0 0 16px;box-shadow:var(--shadow-1);}
+.action-bar .hint{font-size:12px;color:var(--gray-500);flex:1;}
+#simEstado{font-size:12px;color:var(--gray-600);}
+
+/* Antes vs Después — tabla comparativa */
+#resultadoEjecutivoCard{background:#fff;border:1px solid var(--gray-200);border-radius:var(--radius);padding:16px 18px;box-shadow:var(--shadow-1);margin-bottom:16px;}
+.antes-despues-grid{display:grid;grid-template-columns:1fr 32px 1.15fr;gap:0;align-items:stretch;border:1px solid var(--gray-200);border-radius:12px;overflow:hidden;}
+.ad-col{display:flex;flex-direction:column;gap:0;}
+.ad-col-label{font-size:11.5px;font-weight:800;text-transform:uppercase;letter-spacing:.6px;color:var(--gray-900);text-align:left;margin:0;padding:8px 14px;background:var(--gray-50);border-bottom:1px solid var(--gray-200);}
+.ad-col:last-child .ad-col-label{color:var(--emerald-700);background:var(--emerald-50);}
+.ad-flecha{font-size:16px;color:var(--gray-300);display:flex;align-items:center;justify-content:center;background:var(--gray-50);border-left:1px solid var(--gray-200);border-right:1px solid var(--gray-200);}
+.ad-metrica{background:#fff;border:0;border-bottom:1px solid var(--gray-150);border-radius:0;padding:9px 14px;text-align:left;display:grid;grid-template-columns:1fr auto auto;align-items:center;gap:0 12px;min-height:46px;}
+.ad-metrica:last-child{border-bottom:0;}
+.ad-metrica .v{font-size:17px;font-weight:800;color:var(--gray-900);margin:0;order:2;font-family:var(--mono);}
+.ad-metrica .l{font-size:12.5px;color:var(--gray-900);text-transform:uppercase;letter-spacing:.4px;margin:0;order:1;font-weight:700;}
+.ad-metrica.despues{background:var(--emerald-50);border-color:var(--emerald-100);}
+.ad-metrica.despues .v{color:var(--emerald-900);}
+.ad-delta{font-size:11px;font-weight:600;margin:0;order:3;padding:2px 7px;border-radius:3px;}
+.ad-delta.mejora{color:var(--emerald-700);background:var(--emerald-100);}
+.ad-delta.empeora{color:var(--red-700);background:var(--red-100);}
+#resultadoEjecutivoHistorial{margin-top:14px !important;}
+
+/* timeline arrastrable */
+.tl-linea-label{font-size:11.5px;font-weight:600;color:var(--gray-600);margin:12px 0 5px;text-transform:uppercase;letter-spacing:.4px;}
+.tl-fila{display:flex;gap:6px;overflow-x:auto;padding-bottom:6px;}
+.tl-celda{min-width:104px;flex-shrink:0;background:var(--gray-50);border:1px dashed var(--gray-200);border-radius:var(--radius-sm);padding:6px;min-height:70px;}
+.tl-celda.sobrevuelo{background:var(--emerald-50);border-color:var(--emerald-500);}
+.tl-celda-fecha{font-size:10.5px;color:var(--gray-500);font-weight:600;margin-bottom:5px;text-align:center;}
+.tl-bloque{background:#fff;border:1px solid var(--gray-200);border-left:3px solid var(--emerald-500);border-radius:3px;padding:5px 7px;margin-bottom:5px;cursor:grab;font-size:11px;}
+.tl-bloque:hover{border-color:var(--emerald-500);}
+.tl-bloque.bloqueada{background:var(--gray-100);cursor:default;opacity:.8;border-left-color:var(--gray-400);}
+.tl-bloque.cargando{opacity:.5;pointer-events:none;}
+.tl-bloque-top{display:flex;justify-content:space-between;font-weight:600;}
+.tl-bloque-tm{color:var(--gray-600);margin-top:2px;}
+.sim-item-lista{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:8px 12px;border:1px solid var(--gray-200);border-radius:var(--radius-sm);margin-bottom:6px;background:var(--gray-50);font-size:12.5px;}
+.sim-item-lista .del{cursor:pointer;color:var(--red-700);font-weight:600;font-size:14px;flex-shrink:0;padding:2px 6px;}
+.sim-resumen-escenario{background:var(--emerald-50);border:1px solid var(--emerald-100);border-radius:var(--radius-sm);padding:10px 12px;margin-bottom:12px;font-size:12.5px;}
+
+
+.btn-grande{font-size:15px;padding:13px 30px;border-radius:10px;}
+#simEstado{margin-left:0;}
+.panel-modulo .filters{background:rgba(255,255,255,.72);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,.6);border-radius:var(--radius);padding:12px 16px;box-shadow:var(--shadow-1);}
+@media (max-width:1100px){
+  .consola-hero-grid,.menu-modulos,.resultado-row{grid-template-columns:repeat(2,1fr);}
+  .vs-row,.comparacion-alternativas,.antes-despues-grid,.recomendacion-lista{grid-template-columns:1fr;}
+  .ad-flecha{display:none;}
+  .conclusion-ejecutiva{grid-template-columns:1fr;}
+}
+
+/* --- Modal genérico (edición de buffer DDMRP) --- */
+.modal-overlay{position:fixed;inset:0;background:rgba(10,20,16,.55);display:none;
+  align-items:center;justify-content:center;z-index:200;padding:20px;}
+.modal-overlay.open{display:flex;}
+.modal-box{background:#fff;border-radius:16px;max-width:520px;width:100%;
+  box-shadow:0 20px 60px rgba(0,0,0,.35);max-height:88vh;overflow-y:auto;}
+.modal-head{padding:18px 22px;border-bottom:1px solid var(--gray-200);
+  display:flex;justify-content:space-between;align-items:center;}
+.modal-head h3{margin:0;font-size:16px;color:var(--emerald-900);}
+.modal-close{cursor:pointer;font-size:20px;color:var(--gray-400);line-height:1;background:none;border:none;}
+.modal-close:hover{color:var(--gray-900);}
+.modal-body{padding:20px 22px;}
+.modal-footer{padding:16px 22px;border-top:1px solid var(--gray-200);
+  display:flex;justify-content:flex-end;gap:10px;}
+.modal-campo{margin-bottom:14px;}
+.modal-campo label{display:block;font-size:12.5px;font-weight:bold;color:var(--gray-600);margin-bottom:4px;}
+.modal-eval-box{border-radius:10px;padding:14px 16px;margin-top:6px;font-size:13px;line-height:1.5;}
+.modal-eval-box.verde{background:var(--emerald-100);color:var(--emerald-900);}
+.modal-eval-box.amarillo{background:var(--amber-100);color:#6b4a08;}
+.modal-eval-box.rojo{background:var(--red-100);color:var(--red-700);}
+</style>
+</head>
+<body>
+<div class="layout">
+
+  <div class="sidebar">
+    <div class="sidebar-brand">
+      <div style="background:#fff; border-radius:10px; padding:14px 18px; margin-bottom:12px; display:inline-block;">
+        <img src="cargill_logo.png" alt="Cargill" style="height:90px; display:block;">
+      </div>
+      <div class="sub">Simulador Inteligente<br>Aquanutrition</div>
+    </div>
+    <div class="nav-item active" data-screen="hoy"><span class="ico">▸</span> Hoy</div>
+    <div class="nav-item" data-screen="ddmrp"><span class="ico">▸</span> Inventario Estratégico</div>
+    <div class="nav-item" data-screen="produccion"><span class="ico">▸</span> Plan de Producción</div>
+    <div class="nav-item" data-screen="compras"><span class="ico">▸</span> Plan de Compras MP</div>
+    <div class="nav-item" data-screen="simulador"><span class="ico">▸</span> Simulador</div>
+    <div class="nav-sep"></div>
+    <div class="nav-item" data-screen="config"><span class="ico">⚙</span> Configuración</div>
+  </div>
+
+  <div class="main">
+
+    <!-- ============================= HOY ============================= -->
+    <div class="screen active" id="hoy">
+      <div class="hoy-hero">
+        <h2 id="hoySaludo">Prioridades de hoy</h2>
+        <p id="hoyFecha">Cargando…</p>
+        <div class="hoy-kpis" id="hoyKpis"></div>
+      </div>
+
+      <div class="colapsable cerrado" id="hoyQueCambio" style="display:none;">
+        <div class="colapsable-head" data-toggle="hoyQueCambio">
+          <p class="panel-title" id="hoyQueCambioResumen" style="margin:0;font-size:13.5px;">—</p>
+          <span class="chev">▼</span>
+        </div>
+        <div class="colapsable-body">
+          <div id="hoyQueCambioDetalle"></div>
+        </div>
+      </div>
+
+      <div class="kpi-row" id="hoyKpisGlobales"></div>
+
+      <div class="tabs" id="hoyNodoTabs">
+        <div class="tab active" data-hoynodo="pt">Producto Terminado</div>
+        <div class="tab" data-hoynodo="mp">Materia Prima</div>
+      </div>
+
+      <!-- ---- Bloque Producto Terminado ---- -->
+      <div class="nodo-panel active" id="hoyBloquePT" data-bloque="pt">
+        <div class="tabs sub-tabs" data-subtabs>
+          <div class="tab active" data-subtab="emergencias">Emergencias</div>
+          <div class="tab" data-subtab="porvencer">Fecha Límite Próxima</div>
+          <div class="tab" data-subtab="sobrestock">Sobre stock</div>
+        </div>
+
+        <div class="nodo-panel active" data-subpanel="emergencias">
+          <div id="hoyEmergenciasPedidosPT"></div>
+        </div>
+        <div class="nodo-panel" data-subpanel="porvencer">
+          <div id="hoyPorVencerPT"></div>
+        </div>
+        <div class="nodo-panel" data-subpanel="sobrestock">
+          <div id="hoySobrestockPT"></div>
+        </div>
+
+      </div>
+
+      <!-- ---- Bloque Materia Prima ---- -->
+      <div class="nodo-panel" id="hoyBloqueMP" data-bloque="mp">
+        <div class="tabs sub-tabs" data-subtabs>
+          <div class="tab active" data-subtab="emergencias">Emergencias</div>
+          <div class="tab" data-subtab="sobrestock">Sobre stock</div>
+        </div>
+
+        <div class="nodo-panel active" data-subpanel="emergencias">
+          <div id="hoyEmergenciasMP"></div>
+        </div>
+        <div class="nodo-panel" data-subpanel="sobrestock">
+          <div id="hoySobrestockMP"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============================= INVENTARIO ESTRATÉGICO (DDMRP) ============================= -->
+    <div class="screen" id="ddmrp">
+      <div class="topbar">
+        <h1>Inventario Estratégico</h1>
+        <div class="topbar-right">
+          <span class="badge-top" id="ddmrpFuenteBanda">—</span>
+          <span class="badge-top" id="ddmrpNSkuTop" style="background:var(--gray-100);color:var(--gray-600);">—</span>
+          <span class="updated"></span>
+        </div>
+      </div>
+
+      <div class="tabs">
+        <div class="tab active" data-nodo="pt">Producto Terminado</div>
+        <div class="tab" data-nodo="mp">Materia Prima</div>
+      </div>
+
+      <div class="nodo-panel active" id="nodoPT">
+
+        <div class="filters">
+          <div class="filter"><label>Producto (Código - Descripción)</label>
+            <input type="text" id="skuBuscar_ddmrp" placeholder="Ej. 107710385" autocomplete="off">
+            <div class="combo-panel" id="skuBuscar_ddmrp_panel"></div>
+          </div>
+          <div class="filter"><label>Rotación</label>
+            <select id="rotSel_ddmrp">
+              <option value="todos">Todas</option>
+              <option value="alta">Alta</option>
+              <option value="media">Media</option>
+              <option value="baja">Baja</option>
+              <option value="mto">MTO (sin buffer)</option>
+            </select>
+          </div>
+          <div class="filter"><label>Mes de proyección</label>
+            <div class="filter-static" id="ddmrpMesActualLabel">—</div>
+          </div>
+        </div>
+
+        <div class="kpi-row" style="grid-template-columns:repeat(5,1fr);">
+          <div class="card"><p class="kpi-label">Inventario máximo</p>
+            <p class="kpi-value" id="ddmrpTog">—</p>
+            <p class="kpi-sub" id="ddmrpTogSub">tope de la zona verde (TOG)</p></div>
+          <div class="card"><p class="kpi-label">Inventario Mínimo</p>
+            <p class="kpi-value danger" id="ddmrpTor">—</p>
+            <p class="kpi-sub" id="ddmrpTorSub">protección contra quiebre de stock (TOR)</p></div>
+          <div class="card"><p class="kpi-label">Inventario actual</p>
+            <p class="kpi-value neutral" id="ddmrpInvActual">—</p>
+            <p class="kpi-sub" id="ddmrpInvActualSub">disponible + tránsito, hoy</p></div>
+          <div class="card"><p class="kpi-label">A producir hoy</p>
+            <p class="kpi-value" id="ddmrpAProducirHoy">—</p>
+            <p class="kpi-sub" id="ddmrpAProducirHoySub">según plan de producción vigente</p></div>
+          <div class="card"><p class="kpi-label">% Ocupación PT (bodega)</p>
+            <p class="kpi-value" id="posOcupPt">—</p>
+            <p class="kpi-sub" id="posOcupPtSub">—</p></div>
+        </div>
+
+        <div class="grid-2" style="grid-template-columns:1fr 1.4fr;">
+          <div class="card" style="display:flex;flex-direction:column;">
+            <p class="panel-title">OTIF Producto Terminado</p>
+            <p class="panel-sub" id="" style="margin-bottom:14px;"></p>
+            <div style="flex:1;display:flex;flex-direction:column;justify-content:center;">
+              <div id="otifGaugeWrap" style="width:100%;"></div>
+              <div id="otifNota" style="margin-top:14px;"></div>
+            </div>
+          </div>
+
+          <div class="card">
+            <p class="panel-title">Buffer</p>
+            <p class="panel-sub"></p>
+            <div class="chart-wrap tall"><canvas id="ddmrpChart"></canvas></div>
+            <div id="ddmrpChartVacio" style="display:none;height:100%;min-height:260px;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:8px;color:var(--gray-400);">
+              <div style="font-size:13px;font-weight:600;color:var(--gray-600);">Este SKU se produce contra pedido (MTO)</div>
+              <div style="font-size:12px;color:var(--gray-400);max-width:300px;">No lleva inventario mínimo, objetivo ni máximo — se fabrica solo cuando hay un pedido que lo respalda.</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="colapsable" id="colapsableFormula">
+          <div class="colapsable-head" data-toggle="colapsableFormula">
+            <div>
+              <p class="panel-title" style="margin:0;">Fórmulación Semanal</p>
+              <p class="panel-sub" style="margin:2px 0 0;"></p>
+            </div>
+            <span class="chev">▼</span>
+          </div>
+          <div class="colapsable-body">
+            <div id="mpVinculadasPt"><p style="font-size:13px;color:var(--gray-400);">Selecciona un PT arriba.</p></div>
+          </div>
+        </div>
+
+        <div class="card" id="detallePedidosCliente" style="margin-top:16px; display:none;">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+            <div>
+              <p class="panel-title" id="tituloPedidosCliente">Pedidos Comprometidos por Cliente</p>
+              <p class="panel-sub" style="margin-bottom:0;"></p>
+            </div>
+            <span class="badge-top" id="badgeMargenRiesgo" style="background:var(--red-100); color:var(--red-700); font-size:12px;">Margen en riesgo: $0</span>
+          </div>
+          <div style="max-height:280px; overflow-y:auto;">
+            <table>
+              <thead><tr><th>Fecha entrega</th><th>Cliente</th><th class="num-right">Pedido</th><th class="num-right">Acumulado</th><th class="num-right">Valor del pedido</th><th>Cobertura</th></tr></thead>
+              <tbody id="tablaPedidosCliente"></tbody>
+            </table>
+          </div>
+          <div id="impactoConsecuencia" class="aviso-box warn" style="margin-top:12px;"></div>
+          <div id="insightPedidosSku" class="aviso-box" style="margin-top:12px;"></div>
+        </div>
+
+        <div class="card" style="margin-top:16px;">
+          <p class="panel-title">Ejecución — Flujo neto</p>
+          <p class="panel-sub"></p>
+          <div style="max-height:420px;overflow-y:auto;">
+            <table>
+              <thead><tr>
+                <th>SKU</th><th>Producto</th><th>Política</th>
+                <th class="num-right">ADU</th>
+                <th>Posición en el buffer</th>
+                <th class="num-right">NFP</th>
+                <th class="num-right">Disponible</th>
+                <th class="num-right">Tránsito</th>
+                <th class="num-right">Dem. calif.</th>
+                <th class="num-right">A ordenar</th>
+                <th>Zona</th>
+                <th>Físico</th>
+                <th></th>
+              </tr></thead>
+              <tbody id="ddmrpTabla"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="colapsable cerrado" id="colapsableMto">
+          <div class="colapsable-head" data-toggle="colapsableMto">
+            <div>
+              <p class="panel-title" style="margin:0;">SKU sin buffer (MTO) <span id="mtoConteoBadge" class="badge-top" style="margin-left:6px;">—</span></p>
+              <p class="panel-sub" style="margin:2px 0 0;"></p>
+            </div>
+            <span class="chev">▼</span>
+          </div>
+          <div class="colapsable-body">
+            <div style="max-height:340px;overflow-y:auto;">
+              <table>
+                <thead><tr>
+                  <th>SKU</th><th>Producto</th><th class="num-right">ADU</th>
+                  <th class="num-right">Stock</th><th class="num-right">Pedidos</th>
+                  <th class="num-right">Fecha de planificación</th>
+                </tr></thead>
+                <tbody id="mtoTabla"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="nodo-panel" id="nodoMP">
+
+        <div class="filters">
+          <div class="filter"><label>Materia prima (Código - Descripción)</label>
+            <input type="text" id="mpBuscar_ddmrp" placeholder="Buscar MP…" autocomplete="off">
+            <div class="combo-panel" id="mpBuscar_ddmrp_panel"></div>
+          </div>
+          <div class="filter"><label>Lead time</label>
+            <select id="ltSel_mp">
+              <option value="todos">Todos</option>
+              <option value="corto">Corto (≤20 días)</option>
+              <option value="medio">Medio (21-75 días)</option>
+              <option value="largo">Largo (&gt;75 días)</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="kpi-row" style="grid-template-columns:repeat(5,1fr);">
+            <div class="card"><p class="kpi-label">Inventario máximo</p><p class="kpi-value" id="mpTog">—</p><p class="kpi-sub" id="mpTogSub">suma de todas las MP del filtro (TOG)</p></div>
+            <div class="card"><p class="kpi-label">Inventario mínimo</p><p class="kpi-value danger" id="mpTor">—</p><p class="kpi-sub" id="mpTorSub">protección contra falta de insumo (TOR)</p></div>
+            <div class="card"><p class="kpi-label">Inventario actual</p><p class="kpi-value neutral" id="mpInvActual">—</p><p class="kpi-sub" id="mpInvActualSub">disponible + bloqueado + inspección + tránsito, hoy</p></div>
+            <div class="card"><p class="kpi-label">A ordenar</p><p class="kpi-value" id="mpAOrdenar">—</p><p class="kpi-sub" id="mpAOrdenarSub">según flujo neto vigente</p></div>
+            <div class="card"><p class="kpi-label">% Ocupación MP (bodega)</p><p class="kpi-value" id="posOcupMp">—</p><p class="kpi-sub" id="posOcupMpSub">—</p><p class="kpi-sub" id="posOcupMpPolitica" style="margin-top:2px;"></p></div>
+          </div>
+
+
+        <div class="grid-2" style="grid-template-columns:1fr 1.4fr;">
+          <div class="card">
+            <p class="panel-title">Buffer</p>
+            <p class="panel-sub" id="mpSeleccionado">Selecciona una MP en la lista</p>
+            <div class="chart-wrap tall"><canvas id="mpChart"></canvas></div>
+            <div id="mpChartVacio" style="display:none;height:100%;min-height:260px;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:8px;color:var(--gray-400);">
+              <div style="font-size:13px;font-weight:600;color:var(--gray-600);">Esta MP no tiene buffer calculable</div>
+              <div style="font-size:12px;color:var(--gray-400);max-width:300px;">Proveedor local (adquisición rápida, sin lead time) o sin historia de consumo suficiente — no lleva inventario mínimo, objetivo ni máximo.</div>
+            </div>
+          </div>
+          <div class="card">
+            <p class="panel-title">Consumo proyectado de MP por producto</p>
+            <p class="panel-sub"></p>
+            <div id="mpPtConsumen"><p style="font-size:13px;color:var(--gray-400);">Selecciona una MP en la lista.</p></div>
+          </div>
+        </div>
+
+        <div class="card">
+            <p class="panel-title">Ejecución — Flujo neto (MP)</p>
+            <p class="panel-sub"></p>
+            <div style="max-height:420px;overflow-y:auto;">
+              <table>
+                <thead><tr>
+                  <th>Código</th><th>Descripción</th>
+                  <th class="num-right">ADU</th>
+                  <th class="num-right">Lead time</th>
+                  <th>Posición en el buffer</th>
+                  <th class="num-right">NFP</th>
+                  <th class="num-right">Disponible</th>
+                  <th class="num-right" title="OC de importación (barcos) que aún no llegan">En camino</th>
+                  <th class="num-right">Dem. calif.</th>
+                  <th class="num-right">A ordenar</th>
+                  <th>Físico</th>
+                  <th>Acción</th>
+                  <th></th>
+                </tr></thead>
+                <tbody id="mpTabla"></tbody>
+              </table>
+            </div>
+          </div>
+
+        <div class="colapsable cerrado" id="colapsableMpLocal">
+          <div class="colapsable-head" data-toggle="colapsableMpLocal">
+            <div>
+              <p class="panel-title" style="margin:0;">MP sin buffer (proveedor local / sin historia) <span id="mpLocalConteoBadge" class="badge-top" style="margin-left:6px;">—</span></p>
+              <p class="panel-sub" style="margin:2px 0 0;"></p>
+            </div>
+            <span class="chev">▼</span>
+          </div>
+          <div class="colapsable-body">
+            <div style="max-height:340px;overflow-y:auto;">
+              <table>
+                <thead><tr>
+                  <th>Código</th><th>Descripción</th><th class="num-right">ADU</th>
+                  <th class="num-right">Stock actual</th><th>Motivo</th><th></th>
+                </tr></thead>
+                <tbody id="mpLocalTabla"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+    <!-- ============================= PLAN DE PRODUCCIÓN ============================= -->
+    <div class="screen" id="produccion">
+      <div class="topbar">
+        <h1>Plan de Producción</h1>
+        <div class="topbar-right"><span class="badge-top" id="prodFecha">—</span></div>
+      </div>
+
+      <div id="prodParadasStrip"></div>
+      <div id="prodImpactoParadas"></div>
+
+
+      <div class="kpi-row">
+        <div class="card"><p class="kpi-label">Total a producir</p><p class="kpi-value" id="prodTm">—</p><p class="kpi-sub" id="prodSub">—</p></div>
+        <div class="card"><p class="kpi-label">Cubre pedidos</p><p class="kpi-value" id="prodPedido">—</p><p class="kpi-sub">demanda comprometida — no postergable</p></div>
+        <div class="card"><p class="kpi-label">Repone buffer</p><p class="kpi-value neutral" id="prodBuffer">—</p><p class="kpi-sub">con capacidad sobrante — postergable</p></div>
+        <div class="card"><p class="kpi-label">No se alcanza a servir</p><p class="kpi-value danger" id="prodRiesgo">—</p><p class="kpi-sub" id="prodRiesgoSub">—</p></div>
+      </div>
+
+      <div class="kpi-row">
+        <div class="card"><p class="kpi-label">Flete estimado (pedidos)</p><p class="kpi-value" id="fleteEstimado">—</p><p class="kpi-sub" id="fleteFecha">—</p></div>
+        <div class="card"><p class="kpi-label">Sobrecosto de flete</p><p class="kpi-value danger" id="fleteSobrecosto">—</p><p class="kpi-sub" id="fleteSobrecostoSub">—</p></div>
+        <div class="card"><p class="kpi-label">Ahorro posible eligiendo planta</p><p class="kpi-value neutral" id="fleteAhorro">—</p><p class="kpi-sub">si cada pedido fuera a su planta más barata</p></div>
+      </div>
+
+      <div class="aviso-box" id="prodAvisoCambios" style="display:none;"></div>
+
+      <div class="aviso-box warn" id="prodAvisoRiesgo" style="display:none;"></div>
+      <div class="aviso-box warn" id="prodAvisoSinLinea" style="display:none;"></div>
+      <div class="aviso-box warn" id="prodAvisoStockout" style="display:none;"></div>
+      <div class="aviso-box" id="prodAvisoSobreproduccion" style="display:none;"></div>
+
+      <div class="grid-2" style="grid-template-columns:1fr 1fr;">
+        <div class="card">
+          <p class="panel-title">Utilización por Línea</p>
+          <p class="panel-sub"> </p>
+          <div id="prodLineas"></div>
+        </div>
+        <div class="card">
+          <p class="panel-title">Detalle por Día, Línea y Toneladas Planificadas</p>
+          <p class="panel-sub"></p>
+          <div class="chart-wrap"><canvas id="prodChart"></canvas></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;">
+          <div>
+            <p class="panel-title" style="margin:0;">Programa día por día</p>
+            <p class="panel-sub" style="margin:2px 0 0;"></p>
+          </div>
+          <div style="display:flex;gap:8px;">
+            <button class="btn btn-secondary btn-small" id="btnExpandirDias">Expandir</button>
+            <button class="btn btn-secondary btn-small" id="btnColapsarDias">Colapsar</button>
+          </div>
+        </div>
+        <div id="prodDias"></div>
+      </div>
+
+      <div class="card" id="fletePanelSku" style="display:none;margin-top:16px;">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;">
+          <div>
+            <p class="panel-title" style="margin:0;" id="fletePanelSkuTitulo">—</p>
+            <p class="panel-sub" style="margin:2px 0 0;">Por qué el modelo eligió esta planta — USD/TM desde cada una, por pedido.</p>
+          </div>
+          <button class="btn btn-secondary btn-small" id="fletePanelSkuCerrar">✕ Cerrar</button>
+        </div>
+        <div class="cfg-table-wrap">
+          <table class="cfg-table">
+            <thead><tr><th>Cliente</th><th>Fecha entrega</th><th class="num-right">TM faltante</th><th>Región</th>
+              <th class="num-right">USD/TM Durán</th><th class="num-right">USD/TM Guayaquil</th>
+              <th class="num-right">Camiones</th><th>Estado</th></tr></thead>
+            <tbody id="fletePanelSkuTabla"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;">
+          <div>
+            <p class="panel-title" style="margin:0;">Planificación Semanal por Línea</p>
+            <p class="panel-sub" style="margin:2px 0 0;"></p>
+          </div>
+          <button class="btn btn-primary btn-small" id="btnExportarPlanExcel">⬇ Exportar Excel</button>
+        </div>
+        <div id="prodGridSemanal"></div>
+      </div>
+    </div>
+
+    <!-- ============================= PLAN DE COMPRAS MP ============================= -->
+    <div class="screen" id="compras">
+      <div class="topbar">
+        <h1>Plan de Compras MP</h1>
+        <div class="topbar-right">
+          <span class="badge-top" id="comprasFecha">—</span>
+          <button class="btn btn-primary btn-small" id="comprasExportar">⬇ Exportar a Excel para Compras</button>
+        </div>
+      </div>
+
+      <div class="card" style="margin-bottom:16px;">
+        <div id="comprasChips" style="display:flex;gap:10px;flex-wrap:wrap;"></div>
+      </div>
+
+      <div id="comprasAvisos"></div>
+
+      <div class="card">
+        <p class="panel-title">Plan de compras</p>
+        <p class="panel-sub" id="comprasTablaSub"></p>
+        <div style="max-height:460px;overflow-y:auto;" class="cfg-table-wrap">
+          <table class="cfg-table" style="width:100%;">
+            <thead><tr>
+              <th>Código</th><th>Descripción</th><th>Acción</th><th>Fecha</th>
+              <th class="num-right">Cantidad sugerida</th><th>Llegada estimada</th>
+              <th class="num-right">En planta</th><th class="num-right">En camino</th>
+              <th class="num-right">Cobertura</th><th class="num-right">Lead time</th>
+            </tr></thead>
+            <tbody id="comprasTabla"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="card" id="comprasDetalleCard" style="display:none;margin-top:16px;">
+        <p class="panel-title" id="comprasDetalleTitulo">—</p>
+        <div class="grid-2" style="grid-template-columns:1fr 1fr;">
+          <div style="display:flex;flex-direction:column;">
+            <p class="panel-title" style="font-size:14px;">OC en camino</p>
+            <p class="panel-sub" style="margin:0 0 8px;visibility:hidden;">—</p>
+            <div style="height:240px;overflow-y:auto;" class="cfg-table-wrap">
+              <table class="cfg-table" style="width:100%;">
+                <thead><tr><th>Nave</th><th>Booking</th><th class="num-right">Cantidad</th><th>Llegada</th></tr></thead>
+                <tbody id="comprasOcTabla"></tbody>
+              </table>
+            </div>
+          </div>
+          <div style="display:flex;flex-direction:column;">
+            <p class="panel-title" style="font-size:14px;">Compras sugeridas</p>
+            <p class="panel-sub" id="comprasSugeridasTotal" style="margin:0 0 8px;font-weight:600;color:var(--gray-700);"></p>
+            <div style="height:240px;overflow-y:auto;" class="cfg-table-wrap">
+              <table class="cfg-table" style="width:100%;">
+                <thead><tr><th>Llegada</th><th class="num-right">Cantidad</th></tr></thead>
+                <tbody id="comprasSugeridasTabla"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============================= SIMULADOR ============================= -->
+    <div class="screen" id="simulador">
+
+      <!-- ============ VISTA 1: CONSOLA / SITUACIÓN ACTUAL + MENÚ ============ -->
+      <div id="simConsola">
+        <div class="topbar">
+          <div>
+            <h1>Centro de Decisiones</h1>
+            <p style="margin:3px 0 0;font-size:12px;color:var(--gray-500);"></p>
+          </div>
+        </div>
+
+        <div class="consola-hero">
+          <p class="consola-hero-label">Situación Actual</p>
+          <div class="consola-hero-grid" id="consolaHeroGrid"></div>
+        </div>
+
+
+        <div id="simParadasStrip"></div>
+
+
+        <p class="modulo-subtitulo" style="margin:16px 0 8px;">¿Qué problema quieres analizar?</p>
+        <div class="menu-modulos" id="menuModulos">
+          <div class="menu-modulo" data-ir="capacidad">
+            <div class="menu-modulo-ico">⚖</div>
+            <div class="menu-modulo-txt">
+              <p class="t">Capacidad y Clientes</p>
+              <p class="s">Los pedidos superan lo que puedo producir, ¿a quién abastezco?</p>
+            </div>
+          </div>
+          <div class="menu-modulo" data-ir="reprogramacion">
+            <div class="menu-modulo-ico">↺</div>
+            <div class="menu-modulo-txt">
+              <p class="t">Reprogramación</p>
+              <p class="s">¿Qué corridas conviene mover para evitar quiebres o sobrestock?</p>
+            </div>
+          </div>
+          <div class="menu-modulo" data-ir="sobrestock">
+            <div class="menu-modulo-ico">▤</div>
+            <div class="menu-modulo-txt">
+              <p class="t">Sobrestock</p>
+              <p class="s">Tengo exceso de inventario, ¿qué dejo de fabricar?</p>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ============ VISTA 2: CONSOLA DE MÓDULO (una a la vez) ============ -->
+      <div id="simModuloActivo" style="display:none;">
+        <div class="modulo-topbar">
+          <span class="modulo-volver" id="btnVolverConsola">← Volver a la situación general</span>
+        </div>
+
+        <!-- ---- CAPACIDAD ---- -->
+        <div class="panel-modulo" data-modulo="capacidad">
+          <p class="modulo-pregunta">Los pedidos superan mi capacidad. ¿Qué fabrico primero?</p>
+          <div class="kpi-row" style="grid-template-columns:repeat(4,1fr);">
+            <div class="card"><p class="kpi-label">Pedidos del mes</p><p class="kpi-value" id="m1Pedidos">—</p><p class="kpi-sub">demanda real comprometida</p></div>
+            <div class="card"><p class="kpi-label">Capacidad de producción</p><p class="kpi-value neutral" id="m1Capacidad">—</p><p class="kpi-sub">máxima teórica del mes</p></div>
+            <div class="card"><p class="kpi-label">% que representan</p><p class="kpi-value" id="m1PctCapacidad">—</p><p class="kpi-sub">pedidos / capacidad</p></div>
+            <div class="card"><p class="kpi-label">TM sin cobertura</p><p class="kpi-value danger" id="m1SinCobertura">—</p><p class="kpi-sub" id="m1SinCoberturaSub">—</p></div>
+          </div>
+
+          <div id="m1EstadoOk" style="display:none;"></div>
+
+          <div id="m1BloqueDeficit" style="display:none;">
+            <div class="recomendacion-block" id="m1Recomendacion"></div>
+            <div class="conclusion-ejecutiva" id="m1Conclusion"></div>
+          </div>
+        </div>
+
+        <!-- ---- REPROGRAMACIÓN ---- -->
+        <div class="panel-modulo" data-modulo="reprogramacion">
+          <p class="modulo-pregunta">¿Qué corridas conviene mover para evitar quiebres, aprovechar una parada o bajar el sobrestock?</p>
+          <div id="reprogSugerencias"></div>
+
+          <p class="panel-title" style="margin:18px 0 2px;">Ajuste Manual</p>
+          <p class="panel-sub" style="margin:0 0 10px;">Arrastra un bloque a otro día o línea para reoptimizar el plan con esa restricción específica.</p>
+          <div class="filters" style="margin-bottom:6px;max-width:260px;">
+            <div class="filter"><label>Planta</label><select id="simPlantaSel"></select></div>
+          </div>
+          <div id="timelineArrastrable"></div>
+          <div id="timelineArrastrableAviso" style="display:none;"></div>
+        </div>
+
+        <!-- ---- SOBRESTOCK ---- -->
+        <div class="panel-modulo" data-modulo="sobrestock">
+          <p class="modulo-pregunta">Tengo exceso de inventario. ¿Qué dejo de fabricar?</p>
+          <div class="kpi-row" style="grid-template-columns:repeat(4,1fr);">
+            <div class="card"><p class="kpi-label">Stock actual</p><p class="kpi-value neutral" id="m4StockActual">—</p><p class="kpi-sub">disponible + tránsito, PT</p></div>
+            <div class="card"><p class="kpi-label">Capacidad máxima de bodega</p><p class="kpi-value neutral" id="m4CapacidadMax">—</p><p class="kpi-sub">configurada en Configuración</p></div>
+            <div class="card"><p class="kpi-label">Diferencia</p><p class="kpi-value" id="m4Diferencia">—</p><p class="kpi-sub">stock actual − capacidad máxima</p></div>
+            <div class="card"><p class="kpi-label">% Ocupación actual</p><p class="kpi-value" id="m4PctOcupacion">—</p><p class="kpi-sub" id="m4PctOcupacionSub">—</p></div>
+          </div>
+
+          <p class="modulo-subtitulo">SKU en sobrestock</p>
+          <div id="m4TopExcesos"></div>
+
+          <div class="resultado-row" style="grid-template-columns:repeat(3,1fr);margin-top:14px;" id="m4ResultadoRow"></div>
+
+          <div class="conclusion-ejecutiva" id="m4Conclusion"></div>
+        </div>
+
+        <!-- ---- CORRER ESCENARIO + RESULTADO (compartido, dentro de cada módulo) ---- -->
+        <div class="action-bar">
+          <button id="btnCorrerEscenario" class="btn btn-primary btn-grande">Correr escenario</button>
+          <span id="simEstado"></span>
+          <span class="hint">Resuelve el modelo completo de optimización con esta situación aplicada y compara contra la posición actual.</span>
+        </div>
+
+        <div id="resultadoEjecutivoCard" style="display:none;">
+          <p class="modulo-subtitulo">Antes vs. Después</p>
+          <div class="antes-despues-grid" id="antesDespuesGrid"></div>
+          <div id="resultadoEjecutivoHistorial" style="margin-top:14px;"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============================= CONFIGURACIÓN ============================= -->
+    <div class="screen" id="config">
+      <div class="topbar"><h1>Configuración</h1></div>
+
+      <div class="cfg-note" id="cfgNoteBox">
+        <span class="icono" id="cfgNoteIcono">⚠</span>
+        <div id="cfgNoteTexto">
+          <b>Estos valores NO afectan el cálculo real todavía.</b> Se guardan solo en este
+          navegador (localStorage) y no están conectados al motor de optimización
+          (<code>optimizar_produccion.py</code>) ni al cálculo DDMRP. Cambiar aquí la capacidad
+          de una línea o bodega <b>no modifica el plan de producción ni los buffers reales</b> —
+          es un respaldo de referencia, no una fuente de verdad operativa. Para que un cambio de
+          capacidad o compatibilidad se refleje en el plan, debe actualizarse en el sistema de
+          origen que alimenta al motor de optimización.
+        </div>
+      </div>
+
+      <div class="tabs" id="cfgTabsNav">
+        <div class="tab active" data-cfgtab="capacidad">Capacidad y Líneas de Producción</div>
+        <div class="tab" data-cfgtab="paradas">Mantenimientos y Paradas Programadas</div>
+        <div class="tab" data-cfgtab="pedidos">Pedidos Adicionales</div>
+        <div class="tab" data-cfgtab="exclusiones">Exclusiones SKU - Planta/Línea</div>
+        <div class="tab" data-cfgtab="vidautil">Vida útil MP</div>
+        <div class="tab" data-cfgtab="fleteregiones">Regiones de flete</div>
+        <div class="tab" data-cfgtab="temporadalluvia">Temporada de lluvia</div>
+        <div class="tab" data-cfgtab="secuenciacion">Tipos y Tiempos de Setup</div>
+      </div>
+
+      <div class="nodo-panel active" data-cfgpanel="capacidad">
+        <div class="card">
+          <p class="panel-title">Capacidad de Bodega</p>
+          <p class="panel-sub"></p>
+          <div class="filters">
+            <div class="filter"><label>Capacidad Máxima Bodega PT (TM)</label>
+              <input type="number" id="cfgCapPt" min="0" step="1">
+            </div>
+            <div class="filter"><label>Capacidad Máxima Bodega MP (TM)</label>
+              <input type="number" id="cfgCapMp" min="0" step="1">
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div style="display:flex;justify-content:space-between;align-items:center;">
+            <div>
+              <p class="panel-title" style="margin:0;">Líneas de Producción</p>
+              <p class="panel-sub" style="margin:2px 0 0;"></p>
+            </div>
+            <button class="btn btn-secondary btn-small" id="cfgAddLinea">+ Agregar Línea</button>
+          </div>
+          <div class="cfg-table-wrap">
+            <table class="cfg-table">
+              <thead><tr>
+                <th>BU</th><th>Tipo producto</th><th>Planta</th><th>Línea</th>
+                <th>Calibre (mm)</th><th>Horas disp./día</th><th>Rate (TM/h)</th>
+                <th class="num-right">TM/día</th><th></th>
+              </tr></thead>
+              <tbody id="cfgLineasTabla"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div class="nodo-panel" data-cfgpanel="paradas">
+        <div class="card">
+          <div style="display:flex;justify-content:space-between;align-items:center;">
+            <div>
+              <p class="panel-title" style="margin:0;">Mantenimientos y Paradas Programadas</p>
+              <p class="panel-sub" style="margin:2px 0 0;"></p>
+            </div>
+            <button class="btn btn-secondary btn-small" id="cfgAddParada">+ Agregar parada</button>
+          </div>
+          <div class="cfg-table-wrap">
+            <table class="cfg-table">
+              <thead><tr><th>Planta</th><th>Línea</th><th>Fecha inicio</th><th>Fecha fin</th>
+                <th>Horas de parada/día (24 = todo el día)</th><th>Tipo</th><th>Motivo</th><th></th><th></th></tr></thead>
+              <tbody id="cfgParadasTabla"></tbody>
+            </table>
+          </div>
+          <div class="aviso-box" id="cfgParadasAviso" style="display:none;margin-top:10px;"></div>
+          <div id="cfgParadaImpacto" style="margin-top:14px;"></div>
+        </div>
+      </div>
+
+      <div class="nodo-panel" data-cfgpanel="pedidos">
+        <div class="card">
+          <div style="display:flex;justify-content:space-between;align-items:center;">
+            <div>
+              <p class="panel-title" style="margin:0;">Pedidos Adicionales</p>
+              <p class="panel-sub" style="margin:2px 0 0;"></p>
+            </div>
+            <button class="btn btn-secondary btn-small" id="cfgAddPedidoManual">+ Agregar pedido</button>
+          </div>
+          <div class="cfg-table-wrap">
+            <table class="cfg-table">
+              <thead><tr><th>SKU</th><th>Cliente</th><th>TM del pedido</th><th>Fecha de entrega</th><th></th></tr></thead>
+              <tbody id="cfgPedidosManualesTabla"></tbody>
+            </table>
+          </div>
+          <div class="aviso-box" id="cfgPedidosManualesAviso" style="display:none;margin-top:10px;"></div>
+        </div>
+      </div>
+
+      <div class="nodo-panel" data-cfgpanel="exclusiones">
+        <div class="card">
+          <div style="display:flex;justify-content:space-between;align-items:center;">
+            <div>
+              <p class="panel-title" style="margin:0;">Exclusiones SKU - Planta/Línea</p>
+              <p class="panel-sub" style="margin:2px 0 0;"></p>
+            </div>
+            <button class="btn btn-secondary btn-small" id="cfgAddExclusion">+ Agregar exclusión</button>
+          </div>
+          <div class="cfg-table-wrap">
+            <table class="cfg-table">
+              <thead><tr><th>SKU</th><th>Planta excluida</th><th>Línea excluida</th><th>Motivo</th><th></th></tr></thead>
+              <tbody id="cfgExclusionesTabla"></tbody>
+            </table>
+          </div>
+          <div class="aviso-box" id="cfgExclusionesAviso" style="display:none;margin-top:10px;"></div>
+        </div>
+      </div>
+
+      <div class="nodo-panel" data-cfgpanel="vidautil">
+        <div class="card">
+          <p class="panel-title" style="margin:0;">Vida útil MP</p>
+          <p class="panel-sub" style="margin:2px 0 0;">Opcional. Si la cobertura de una MP supera su vida útil, el plan de
+            compras muestra "Riesgo de vencimiento" y frena la compra. Vacío = no aplica.</p>
+          <div style="display:flex;gap:10px;align-items:flex-end;margin:14px 0 4px;flex-wrap:wrap;">
+            <div class="filter" style="position:relative;max-width:380px;margin:0;">
+              <label>Agregar MP (catálogo de Inventario Estratégico → Materia Prima)</label>
+              <input type="text" id="cfgVidaUtilBuscar" placeholder="Código o descripción…" autocomplete="off">
+              <div class="combo-panel" id="cfgVidaUtilBuscar_panel"></div>
+            </div>
+            <button class="btn btn-secondary btn-small" id="cfgVidaUtilAgregar">+ Agregar</button>
+          </div>
+          <div class="cfg-table-wrap">
+            <table class="cfg-table">
+              <thead><tr><th>SKU</th><th>Descripción</th><th>Vida útil (días)</th><th></th></tr></thead>
+              <tbody id="cfgVidaUtilTabla"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div class="nodo-panel" data-cfgpanel="fleteregiones">
+        <div class="card">
+          <p class="panel-title" style="margin:0;">Regiones de flete</p>
+          <p class="panel-sub" style="margin:2px 0 0;">Región (DESTINO del tabulador) de cada Ship To terrestre. Corrige
+            acá los que salieron "Revisar" o sin región — se aplica al correr calcular_flete_pedidos.py.</p>
+          <div id="cfgFleteAvisos" style="margin:10px 0;"></div>
+          <div id="cfgFleteRegionesChips" style="display:flex;gap:8px;flex-wrap:wrap;margin:10px 0 14px;"></div>
+          <div class="cfg-table-wrap">
+            <table class="cfg-table">
+              <thead><tr><th>Ship To</th><th>Descripción</th><th>Sold To</th><th>Región</th><th>Cómo se encontró</th>
+                <th class="num-right">Restricción (TM)</th><th class="num-right">Restricción invernal (TM)</th>
+                <th>Corrección manual</th></tr></thead>
+              <tbody id="cfgFleteRegionesTabla"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div class="nodo-panel" data-cfgpanel="temporadalluvia">
+        <div class="card">
+          <div style="display:flex;justify-content:space-between;align-items:center;">
+            <div>
+              <p class="panel-title" style="margin:0;">Temporada de lluvia</p>
+              <p class="panel-sub" style="margin:2px 0 0;">En estas fechas de despacho se usa la RESTRICCION INVERNAL de SAP
+                Customers (carga máxima por camión más baja por lluvias). Si un cliente no tiene restricción invernal, se
+                usa la normal.</p>
+            </div>
+            <button class="btn btn-secondary btn-small" id="cfgAddTemporada">+ Agregar rango</button>
+          </div>
+          <div class="cfg-table-wrap">
+            <table class="cfg-table">
+              <thead><tr><th>Fecha inicio</th><th>Fecha fin</th><th>Activo</th><th></th></tr></thead>
+              <tbody id="cfgTemporadaTabla"></tbody>
+            </table>
+          </div>
+          <div class="aviso-box" id="cfgTemporadaAviso" style="display:none;margin-top:10px;"></div>
+        </div>
+      </div>
+
+      <div class="nodo-panel" data-cfgpanel="secuenciacion">
+
+        <div class="card">
+          <p class="panel-title">Matriz Tiempo de Set Up</p>
+          <p class="panel-sub"></p>
+          <div class="cfg-table-wrap" id="matrizSetupContenedor"></div>
+        </div>
+
+      <div class="cfg-actions">
+
+        <button class="btn btn-primary" id="cfgGuardar">Guardar cambios</button>
+        <button class="btn btn-secondary" id="cfgExportar">Exportar configuración (JSON)</button>
+        <button class="btn btn-secondary" id="cfgImportar">Importar configuración (JSON)</button>
+        <button class="btn btn-danger" id="cfgReset">Restablecer valores por defecto</button>
+        <input type="file" id="cfgImportarFile" accept="application/json" style="display:none;">
+        <span class="saved-flash" id="cfgFlash">Guardado ✓</span>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ============ MODAL: editar buffer DDMRP (TOR/TOY/TOG) ============ -->
+<div class="modal-overlay" id="modalEditarBuffer">
+  <div class="modal-box">
+    <div class="modal-head">
+      <h3 id="modalEditarBufferTitulo">Editar buffer</h3>
+      <button class="modal-close" id="modalEditarBufferCerrar">✕</button>
+    </div>
+    <div class="modal-body">
+      <p class="panel-sub" style="margin:0 0 14px;">Estos son los valores reales que usa el modelo DDMRP — el optimizador
+        toma el nuevo TOG/TOY/TOR en la próxima corrida sin ningún otro cambio.</p>
+      <div class="modal-campo">
+        <label>Inventario mínimo (TOR)</label>
+        <input type="number" id="modalBufferTor" min="0" step="1">
+      </div>
+      <div class="modal-campo">
+        <label>Inventario objetivo (TOY)</label>
+        <input type="number" id="modalBufferToy" min="0" step="1">
+      </div>
+      <div class="modal-campo">
+        <label>Inventario máximo (TOG)</label>
+        <input type="number" id="modalBufferTog" min="0" step="1">
+      </div>
+      <div class="modal-campo">
+        <label>DAF — Multiplica el ADU (demanda diaria). También se traslada a las MP de su fórmula.</label>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <input type="number" id="modalBufferDaf" min="0.5" max="3" step="0.05" style="flex:1;">
+          <button class="btn btn-secondary btn-small" id="modalBufferDafReset" type="button">Restaurar (1.0)</button>
+        </div>
+      </div>
+      <div class="modal-campo">
+        <label>ZAF — Multiplica solo la Zona Verde.</label>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <input type="number" id="modalBufferZaf" min="0.5" max="3" step="0.05" style="flex:1;">
+          <button class="btn btn-secondary btn-small" id="modalBufferZafReset" type="button">Restaurar (1.0)</button>
+        </div>
+      </div>
+      <div class="modal-campo">
+        <label>LTAF — Multiplica el lead time de producción.</label>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <input type="number" id="modalBufferLtaf" min="0.5" max="3" step="0.05" style="flex:1;">
+          <button class="btn btn-secondary btn-small" id="modalBufferLtafReset" type="button">Restaurar (1.0)</button>
+        </div>
+      </div>
+      <div style="margin:-6px 0 14px;">
+        <button class="btn btn-secondary btn-small" id="modalBufferUsarRecomendacion" type="button">↺ Usar recomendación actual del sistema</button>
+      </div>
+
+
+      <div id="modalBufferEval"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary btn-small" id="modalBufferCancelar">Cancelar</button>
+      <button class="btn btn-primary btn-small" id="modalBufferConfirmar" disabled>Confirmar cambio</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ MODAL: Editar buffer — MP (TOR/TOY/TOG + ZAF/LTAF) ============ -->
+<div class="modal-overlay" id="modalEditarBufferMp">
+  <div class="modal-box">
+    <div class="modal-head">
+      <h3 id="modalEditarBufferMpTitulo">Editar buffer — MP</h3>
+      <button class="modal-close" id="modalEditarBufferMpCerrar">✕</button>
+    </div>
+    <div class="modal-body">
+      <p class="panel-sub" style="margin:0 0 14px;">Estos son los valores reales que usa el modelo DDMRP — el optimizador
+        toma el nuevo TOG/TOY/TOR en la próxima corrida sin ningún otro cambio.</p>
+      <div class="modal-campo">
+        <label>Inventario mínimo (TOR)</label>
+        <input type="number" id="modalBufferMpTor" min="0" step="1">
+      </div>
+      <div class="modal-campo">
+        <label>Inventario objetivo (TOY)</label>
+        <input type="number" id="modalBufferMpToy" min="0" step="1">
+      </div>
+      <div class="modal-campo">
+        <label>Inventario máximo (TOG)</label>
+        <input type="number" id="modalBufferMpTog" min="0" step="1">
+      </div>
+      <div class="modal-campo">
+        <label>ZAF (Zona Verde) — Multiplica solo la Zona Verde (tamaño/frecuencia de pedido al proveedor).</label>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <input type="number" id="modalBufferMpZaf" min="0.5" max="3" step="0.05" style="flex:1;">
+          <button class="btn btn-secondary btn-small" id="modalBufferMpZafReset" type="button">Restaurar (1.0)</button>
+        </div>
+      </div>
+      <div class="modal-campo">
+        <label>Lead time real del proveedor (días) — corrige el dato base si cambió (ej. el proveedor pasó de 90 a 95
+          días). LTAF se sigue aplicando sobre este valor. Sistema: <b id="modalBufferMpLeadTimeSistema">—</b> días.</label>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <input type="number" id="modalBufferMpLeadTimeManual" min="1" step="1" style="flex:1;" placeholder="Vacío = usa el del sistema">
+          <button class="btn btn-secondary btn-small" id="modalBufferMpLeadTimeRevertir" type="button">Revertir al del sistema</button>
+        </div>
+      </div>
+      <div class="modal-campo">
+        <label>LTAF (lead time) — Multiplica el lead time del proveedor (ej. 1.3 si el proveedor avisa demoras de 30%).</label>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <input type="number" id="modalBufferMpLtaf" min="0.5" max="3" step="0.05" style="flex:1;">
+          <button class="btn btn-secondary btn-small" id="modalBufferMpLtafReset" type="button">Restaurar (1.0)</button>
+        </div>
+      </div>
+      <div class="modal-campo">
+        <label>DAF heredado de PT — solo si algún PT tiene un DAF manual (≠ 1.0) activo; el consumo normal por fórmula (puede ser de muchos PT) se ve en "Consumo proyectado de MP por producto".</label>
+        <div id="modalBufferMpDafHeredado" class="aviso-box" style="margin:0;"></div>
+      </div>
+      <div style="margin:-6px 0 14px;display:flex;gap:8px;flex-wrap:wrap;">
+        <button class="btn btn-secondary btn-small" id="modalBufferMpUsarRecomendacion" type="button">↺ Usar recomendación actual del sistema</button>
+        <button class="btn btn-secondary btn-small" id="modalBufferMpRevertir" type="button" style="display:none;color:var(--red-700);">Revertir a DDMRP</button>
+      </div>
+
+      <div id="modalBufferMpEval"></div>
+      <div id="modalMpFactoresError" class="modal-eval-box rojo" style="display:none;"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary btn-small" id="modalBufferMpCancelar">Cancelar</button>
+      <button class="btn btn-primary btn-small" id="modalBufferMpConfirmar" disabled>Confirmar cambio</button>
+    </div>
+  </div>
+</div>
+
+<script src=https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js></script>
+<script src=https://cdnjs.cloudflare.com/ajax/libs/chartjs-plugin-datalabels/2.2.0/chartjs-plugin-datalabels.min.js></script>
+<script src=https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.4.0/exceljs.min.js></script>
+<script src="dashboard.js?v=47"></script>
+</body>
+</html>

@@ -1,0 +1,659 @@
+2026-10-12 00:40:05,005 | INFO | === INICIO PIPELINE 2026-10-12T00:40:05.005295 ===
+2026-10-12 00:40:05,006 | INFO | 22 pasos configurados.
+2026-10-12 00:40:05,006 | INFO | [1/22]
+2026-10-12 00:40:05,007 | INFO | --- Iniciando: Pipeline\01_Ingesta_Ventas.py (crítico=True) ---
+2026-10-12 00:40:20,514 | INFO | Cargando Histórico de Ventas...
+Columnas cargadas:
+['sku', 'sku_descripcion', 'forma', 'etapa', 'calibre', 'centro_sap', 'centro', 'Capacidad Máxima [TM]', 'segmento_cliente', 'holding', 'codigo_cliente', 'cliente', 'fecha', 'ventas_tm', 'precio_sacos', 'precio_tm', 'costo_tm', 'anio', 'mes']
+[INFO] 2316 filas de devolución/ventas<=0 excluidas de la serie de demanda (demanda bruta, no neta).
+
+--- Participación por centro (ventana: 2026-04 a 2026-09) ---
+  56 SKU con participación calculable
+  39 SKU se producen en más de un centro
+  ⚠️  29 SKU con reparto INESTABLE entre meses (desviación > 0.15).
+      Su buffer por planta va a ser poco confiable -- revisar si hubo movimiento de producción entre centros.
+[OK] Datos cargados en C:\Users\s545890\OneDrive - Cargill Inc\Simulador Inteligente\db\simulador.db
+
+Series únicas: 1357
+SKU únicos: 78
+Rango fechas: 2024-01-02 00:00:00 a 2026-09-30 00:00:00
+Centros: ['CD DAJAHU', 'CD NATURISA', 'DENCER', 'EXPORTACION', 'FLEXNET', 'MAQ PCO', 'PLANTA CANE', 'PLANTA DURÁN']
+
+Volumen histórico por centro (TM):
+centro
+CD NATURISA     423292.0
+CD DAJAHU       395278.0
+PLANTA DURÁN    190196.0
+PLANTA CANE      70899.0
+MAQ PCO           8701.0
+EXPORTACION       8163.0
+DENCER              22.0
+FLEXNET             11.0
+
+2026-10-12 00:40:20,515 | INFO | Pipeline\01_Ingesta_Ventas.py OK (16s)
+2026-10-12 00:40:20,516 | INFO | [2/22]
+2026-10-12 00:40:20,516 | INFO | --- Iniciando: Ingesta_Forecast_Comercial.py (crítico=True) ---
+2026-10-12 00:40:25,918 | INFO | Cargando forecast de Comercial — Análisis de PT - 2026.xlsm
+
+[OK] 41 SKU · 146 series sku-cliente
+  mes_offset disponibles: [np.int64(0)]
+  Tablas: forecast_sku_calibrado, forecast_sku_cliente_comercial
+
+2026-10-12 00:40:25,919 | INFO | Ingesta_Forecast_Comercial.py OK (5s)
+2026-10-12 00:40:25,919 | INFO | [3/22]
+2026-10-12 00:40:25,920 | INFO | --- Iniciando: completar_forecast_faltante.py (crítico=True) ---
+2026-10-12 00:40:27,884 | INFO | === Forecast de respaldo para SKU nuevos (2026) ===
+
+ 20 SKU nuevos detectados (con ventas 2026, sin forecast de Comercial):
+ Nivel A con historia sólida (≥14 días): 7
+ Nivel A con historia escasa (<14 días, pero REAL): 13
+ Nivel B (gemelos, solo SKU sin NINGUNA venta): 0
+ Sin evidencia suficiente (NO se inventa ADU): 0
+
+[OK] 20 SKU agregados a 'forecast_sku_calibrado' con ADU de respaldo. Tabla de detalle: 'forecast_respaldo_sku_nuevo'.
+
+2026-10-12 00:40:27,884 | INFO | completar_forecast_faltante.py OK (2s)
+2026-10-12 00:40:27,884 | INFO | [4/22]
+2026-10-12 00:40:27,885 | INFO | --- Iniciando: calcular_adu_mes_actual.py (crítico=False) ---
+2026-10-12 00:40:41,802 | INFO | Leyendo ventas de octubre 2026 desde C:\Users\s545890\OneDrive - Cargill Inc\ANH EC Supply Chain - Business Intelligence - PLANNING\PRODUCTO TERMINADO\Anual\2026\Análisis de PT - 2026.xlsm / hoja Análisis Mensual...
+  127 SKU con ventas registradas en octubre 2026
+  Corte de datos real: 2026-10-11
+  [OK] 127 SKU (universo completo) guardados en 'ventas_mes_actual_completo' -- TM total: 9,634.5
+
+[OK] 61 SKU con ADU híbrido (11 de 31 días de octubre 2026 transcurridos, 35% del mes ya real).
+      sku  adu_original_forecast  venta_real_mtd  dias_transcurridos  dias_restantes  adu_hibrido  pct_mes_transcurrido
+107708597                435.484        2511.525                  11              20      361.974                 0.355
+107714391                290.323        2504.700                  11              20      268.102                 0.355
+107715265                140.290         782.575                  11              20      115.754                 0.355
+107710385                125.806         728.525                  11              20      104.666                 0.355
+107714661                 96.774         509.850                  11              20       78.882                 0.355
+107710493                 61.613         396.125                  11              20       52.528                 0.355
+107713808                 54.839         320.075                  11              20       45.705                 0.355
+130164297                 41.935         287.075                  11              20       36.316                 0.355
+107713809                 93.548         282.150                  11              20       69.455                 0.355
+107710489                 25.887         200.000                  11              20       23.153                 0.355
+
+2026-10-12 00:40:41,803 | WARNING | C:\Users\s545890\OneDrive - Cargill Inc\Simulador Inteligente\.venv\Lib\site-packages\openpyxl\worksheet\_reader.py:329: UserWarning: Conditional Formatting extension is not supported and will be removed
+  warn(msg)
+
+2026-10-12 00:40:41,803 | INFO | calcular_adu_mes_actual.py OK (14s)
+2026-10-12 00:40:41,804 | INFO | [5/22]
+2026-10-12 00:40:41,806 | INFO | --- Iniciando: Ingesta_Consumo_MP.py (crítico=False) ---
+2026-10-12 00:41:06,974 | INFO | === Consumo de MP (histórico + en curso) ===
+  Consumos 2026.xlsx / hoja 'Consumo MP' (histórico 2025)
+    4 filas descartadas (sin material, fecha o consumo válido)
+    98105 filas válidas · rango 2025-06-01 a 2026-07-17
+  Análisis de MP - 2026.xlsm / hoja 'Consumo MP' (en curso 2026)
+    Encabezados detectados en la fila 2 del Excel
+    66297 filas válidas · rango 2026-01-01 a 2026-10-08
+
+ 147629 filas se combinaron: transacciones del mismo día dentro de un archivo se sumaron; choques entre archivos se resolvieron a favor del más actualizado (sin sumar).
+
+[OK] consumo_mp: 16773 filas · 95 MP distintas
+  Rango total: 2025-06-01 a 2026-10-08
+
+2026-10-12 00:41:06,975 | INFO | Ingesta_Consumo_MP.py OK (25s)
+2026-10-12 00:41:06,975 | INFO | [6/22]
+2026-10-12 00:41:06,976 | INFO | --- Iniciando: Ingesta_RMB_MP.py (crítico=False) ---
+2026-10-12 00:41:09,402 | INFO | [OK] RMB MP: 661 filas (MP x mes) · 75 MP distintas
+  [AVISO] 1 filas sin RMB numérico -- descartadas, no se inventa el dato.
+
+2026-10-12 00:41:09,403 | INFO | Ingesta_RMB_MP.py OK (2s)
+2026-10-12 00:41:09,403 | INFO | [7/22]
+2026-10-12 00:41:09,404 | INFO | --- Iniciando: calcular_buffer_ddmrp_dinamico.py (crítico=False) ---
+2026-10-12 00:42:05,500 | INFO | === Cargando forecast a nivel SKU ===
+
+=== Nodo PT: 61 SKU x 1 meses = 61 buffers ===
+DLT fijo: 3 días. var_factor: bootstrap real.
+var_factor (bootstrap): mediana 1.00 (acotado 0.10-1.00)
+ 29 SKU usaron ventana reciente (no estacionarios).
+lt_factor PT: 0.8 (lead time de producción 3 días)
+[INFO] newsvendor calculado como referencia (tor_newsvendor), NO activo en TOR -- falta Co real (Planning no puede proveerlo).
+ 3 SKU clasificados 'lumpy' (irregular): buffer automático puede no bastar, requieren revisión manual.
+
+=== Nodo MP: ADU y var_factor desde consumo diario real ===
+  4 MP con inventario pero sin consumo registrado -- se listan sin buffer.
+[WARN] 14 MP sin lead time -- sin buffer calculable.
+Sin MOQ (confirmado: no existe mínimo real de proveedor)
+var_factor (bootstrap): mediana 0.67
+ 40 MP usaron ventana reciente (no estacionarios).
+ Rotación MP: {'media': 28, 'alta': 27, 'baja': 27, 'sin_rotacion': 17}
+
+[OK] PT (mes 0): TOG 13,501 TM · TOR 5,461 TM · inventario promedio esperado (TOR + Verde/2) 7,248 TM · 9.1 días cobertura
+ Capacidad bodega PT: 16,781 TM (43% con el inventario promedio)
+[OK] MP: TOG 149,070 TM · TOR 40,890 TM
+
+2026-10-12 00:42:05,501 | WARNING | C:\Users\s545890\OneDrive - Cargill Inc\Simulador Inteligente\.venv\Lib\site-packages\statsmodels\regression\linear_model.py:955: RuntimeWarning: divide by zero encountered in log
+  llf = -nobs2*np.log(2*np.pi) - nobs2*np.log(ssr / nobs) - nobs2
+C:\Users\s545890\OneDrive - Cargill Inc\Simulador Inteligente\.venv\Lib\site-packages\statsmodels\regression\linear_model.py:955: RuntimeWarning: divide by zero encountered in log
+  llf = -nobs2*np.log(2*np.pi) - nobs2*np.log(ssr / nobs) - nobs2
+C:\Users\s545890\OneDrive - Cargill Inc\Simulador Inteligente\.venv\Lib\site-packages\statsmodels\regression\linear_model.py:955: RuntimeWarning: divide by zero encountered in log
+  llf = -nobs2*np.log(2*np.pi) - nobs2*np.log(ssr / nobs) - nobs2
+C:\Users\s545890\OneDrive - Cargill Inc\Simulador Inteligente\.venv\Lib\site-packages\statsmodels\regression\linear_model.py:955: RuntimeWarning: divide by zero encountered in log
+  llf = -nobs2*np.log(2*np.pi) - nobs2*np.log(ssr / nobs) - nobs2
+C:\Users\s545890\OneDrive - Cargill Inc\Simulador Inteligente\.venv\Lib\site-packages\statsmodels\regression\linear_model.py:955: RuntimeWarning: divide by zero encountered in log
+  llf = -nobs2*np.log(2*np.pi) - nobs2*np.log(ssr / nobs) - nobs2
+C:\Users\s545890\OneDrive - Cargill Inc\Simulador Inteligente\.venv\Lib\site-packages\statsmodels\regression\linear_model.py:955: RuntimeWarning: divide by zero encountered in log
+  llf = -nobs2*np.log(2*np.pi) - nobs2*np.log(ssr / nobs) - nobs2
+C:\Users\s545890\OneDrive - Cargill Inc\Simulador Inteligente\.venv\Lib\site-packages\statsmodels\regression\linear_model.py:955: RuntimeWarning: divide by zero encountered in log
+  llf = -nobs2*np.log(2*np.pi) - nobs2*np.log(ssr / nobs) - nobs2
+
+2026-10-12 00:42:05,501 | INFO | calcular_buffer_ddmrp_dinamico.py OK (56s)
+2026-10-12 00:42:05,502 | INFO | [8/22]
+2026-10-12 00:42:05,503 | INFO | --- Iniciando: Pipeline\Ingesta_Inventario.py (crítico=False) ---
+2026-10-12 00:42:13,240 | INFO | so PT'
+  Encabezados detectados en la fila 2 del Excel
+  107 filas, 21 columnas
+  Factor de conversión: 1000.0 (unidad base -> TM)
+  [AVISO] En 4 de 107 filas las categorías no suman el Total Stock.
+  49 materiales distintos
+  Disponible total: 11,035.9 TM
+  En tránsito:      336.6 TM
+  Bloqueado + inspección: 102.3 TM (0.9%) -- NO cuenta como disponible
+  Reemplazando 49 filas del snapshot de hoy en 'posicion_inventario_pt'
+
+=== Pedidos pendientes PT (demanda calificada) ===
+  Análisis de PT - 2026.xlsm / hoja 'Pedido Pendientes PT'
+  595 filas, 18 columnas
+  Cantidad tomada de 'Pedido
+[TM]' (ya en TM)
+  592 pedidos con cantidad > 0
+  34 materiales
+  Cantidad total pendiente: 8,891.7 TM
+  Rango de fechas: 2026-10-01 a 2026-10-31
+  253 pedidos POSTERGADOS (fecha pasada, siguen pendientes) por 3,393.7 TM
+  Reemplazando 592 filas del snapshot de hoy en 'pedidos_pendientes_pt'
+
+=== Inventario en curso: MP ===
+  Análisis de MP - 2026.xlsm / hoja 'Inventario MP'
+  Encabezados detectados en la fila 2 del Excel
+  1851 filas, 19 columnas
+  Factor de conversión: 1000.0 (unidad base -> TM)
+  Validación de suma de categorías: OK
+  [VERIFICAR] 718 filas con material+ubicación+cantidad repetidos (3,844.5 TM en las repeticiones).
+              Detalle por lote -> correcto sumarlas.
+              Reporte duplicado -> el stock queda inflado.
+  75 materiales distintos
+  Disponible total: 102,907.7 TM
+  En tránsito:      240.2 TM
+  Bloqueado + inspección: 10,943.6 TM (9.6%) -- NO cuenta como disponible
+  Reemplazando 75 filas del snapshot de hoy en 'posicion_inventario_mp'
+
+==============================================================
+COBERTURA CONTRA EL BUFFER
+==============================================================
+
+  PT: 48 de 61 con posición
+    13 sin posición: ['107708572', '107708591', '107708599', '107708686', '107710377', '107710382', '107710501', '107715604', '107715764', '107716116'] …
+    Sin posición NO es stock cero: puede ser brecha del reporte.
+    1 materiales con stock pero SIN buffer.
+
+  MP: 75 de 99 con posición
+    24 sin posición: ['107544067', '107544084', '107545168', '107547546', '107548886', '107565777', '107674333', '107680760', '107680787', '107680795'] …
+    Sin posición NO es stock cero: puede ser brecha del reporte.
+
+==============================================================
+SNAPSHOTS ACUMULADOS
+==============================================================
+  posicion_inventario_pt: 70 día(s) — 2026-07-29 a 2026-10-12
+  posicion_inventario_mp: 70 día(s) — 2026-07-29 a 2026-10-12
+  pedidos_pendientes_pt: 70 día(s) — 2026-07-29 a 2026-10-12
+
+  La trayectoria del flujo neto necesita varios días. Corriendo a
+  diario se arma la curva.
+
+==============================================================
+TABLAS ACTUALIZADAS
+==============================================================
+  posicion_inventario_pt: 49 filas hoy
+  pedidos_pendientes_pt: 592 filas hoy
+  posicion_inventario_mp: 75 filas hoy
+
+Siguiente paso: calcular_nfp.py
+
+2026-10-12 00:42:13,241 | INFO | Pipeline\Ingesta_Inventario.py OK (8s)
+2026-10-12 00:42:13,242 | INFO | [9/22]
+2026-10-12 00:42:13,245 | INFO | --- Iniciando: ajustar_buffer_daf_zaf.py (crítico=False) ---
+2026-10-12 00:42:21,886 | INFO |  0 SKU con ajuste planificado (DAF/LTAF/ZAF) de 56 con buffer.
+[OK] ddmrp_buffer_pt actualizado, detalle en 'ddmrp_ajuste_daf_zaf'.
+
+2026-10-12 00:42:21,887 | INFO | ajustar_buffer_daf_zaf.py OK (9s)
+2026-10-12 00:42:21,887 | INFO | [10/22]
+2026-10-12 00:42:21,889 | INFO | --- Iniciando: ajustar_buffer_mp.py (crítico=False) ---
+2026-10-12 00:42:27,395 | INFO | === Ajustes MP: 0 MP con DAF heredado de PT · 0 con ZAF (verde) · 0 con LTAF · 0 con lead time manual ===
+  Bodega MP: inventario promedio esperado (TOR + Verde/2) 58,754 TM de 223,962 TM -- cabe. (TOG total 149,070 TM, la Zona Amarilla es material en camino.)
+[OK] ddmrp_buffer_mp actualizado · detalle en ddmrp_ajuste_mp.
+
+2026-10-12 00:42:27,395 | INFO | ajustar_buffer_mp.py OK (6s)
+2026-10-12 00:42:27,396 | INFO | [11/22]
+2026-10-12 00:42:27,399 | INFO | --- Iniciando: clasificar_mts_mto.py (crítico=True) ---
+2026-10-12 00:42:29,170 | INFO | 2    306.50       18.75                        cuantil 1.00 sin evidencia física que lo sostenga
+107710382 2.28               1.0          23.2      0.00        0.00 sin stock ni pedidos · cuantil 1.00 sin evidencia física que lo sostenga
+107708568 1.76               1.0          17.9     76.65       12.50                        cuantil 1.00 sin evidencia física que lo sostenga
+107716459 1.66               1.0          17.0     45.95        9.90                        cuantil 1.00 sin evidencia física que lo sostenga
+130168151 1.47               1.0          15.0     45.28        0.00                        cuantil 1.00 sin evidencia física que lo sostenga
+107710491 1.42               1.0          14.4    135.65        0.00                        cuantil 1.00 sin evidencia física que lo sostenga
+107713804 1.09               1.0          11.1     74.53        0.00                        cuantil 1.00 sin evidencia física que lo sostenga
+130164299 0.92               1.0           9.4    279.08        0.00                       ADU=0, sin rotación registrada -- buffer no aplica
+107710501 0.83               1.0           8.4      0.00        0.00                       ADU=0, sin rotación registrada -- buffer no aplica
+107708686 0.54               1.0           5.5      0.00        0.00                       ADU=0, sin rotación registrada -- buffer no aplica
+107710354 0.54               1.0           5.5     37.67        0.00                       ADU=0, sin rotación registrada -- buffer no aplica
+
+============================================================
+ALERTAS MTO — pedidos que requieren lanzar producción
+============================================================
+
+  YA VENCIÓ EL LANZAMIENTO (1):
+      sku  cantidad_tm  stock_tm  a_producir_tm primera_entrega fecha_limite_lanzamiento  dias_para_lanzar
+107708572         44.8       0.0           44.8      2026-10-08               2026-10-05                -7
+
+  Cubierto con stock — no requiere producir (8):
+      sku  cantidad_tm  stock_tm  a_producir_tm primera_entrega fecha_limite_lanzamiento  dias_para_lanzar
+107708566         25.9      62.2            0.0      2026-10-09               2026-10-06                -6
+107710383         18.8     306.5            0.0      2026-10-09               2026-10-06                -6
+107708576         27.2      38.1            0.0      2026-10-09               2026-10-06                -6
+107716459          9.9      46.0            0.0      2026-10-09               2026-10-06                -6
+107708587         59.4      73.8            0.0      2026-10-10               2026-10-07                -5
+107708568         12.5      76.6            0.0      2026-10-10               2026-10-07                -5
+107680697          0.6       8.3            0.0      2026-10-15               2026-10-12                 0
+107708845          1.2       7.4            0.0      2026-10-16               2026-10-13                 1
+
+[OK] Tablas: posicionamiento_pt, alertas_mto
+
+2026-10-12 00:42:29,171 | INFO | clasificar_mts_mto.py OK (2s)
+2026-10-12 00:42:29,171 | INFO | [12/22]
+2026-10-12 00:42:29,173 | INFO | --- Iniciando: calcular_nfp.py (crítico=False) ---
+2026-10-12 00:42:31,602 | INFO | =====
+  Cobertura del TOG (incluye Zona Amarilla en camino): mediana 43.6 días (p10 0.0 · p90 164.8)
+
+==============================================================
+COLA DE TRABAJO — 15 más urgentes por prioridad (NFP/TOG)
+==============================================================
+nodo       sku                  descripcion  nfp_tm   tor    tog  prioridad_pct zona_nfp  cantidad_a_ordenar_tm alerta_onhand   politica nivel_rotacion
+  MP 107712926   FOSFATO MONOCALCICO 22.7 %    -1.1   9.1   21.0           -5.2     ROJO                   21.0       CRITICO        NaN          media
+  PT 107676353 PURINA ECOFEED 281 CRECIMIEN     0.0  25.2   53.6            0.0     ROJO                   53.6       CRITICO MTS MINIMO           baja
+  PT 107708567     AQUAXCEL ADVANCE 35% 1.2     0.0  55.3  128.0            0.0     ROJO                  128.0            OK  MTS PLENO          media
+  PT 107708574   AQUAXCEL RAPID 35% SLD 1.2     0.0  74.1  171.3            0.0     ROJO                  171.3       CRITICO  MTS PLENO          media
+  PT 107708591  AQUAXCEL ADAPT OSM35 AD 2.0     0.0  85.9  189.4            0.0     ROJO                  189.4       CRITICO  MTS PLENO          media
+  PT 107708607 AQUAXCEL MAXIMA 35% NT 2.0 -     0.0 263.4  630.9            0.0     ROJO                  630.9            OK  MTS PLENO           alta
+  PT 107708720 PURINA AQUAFEED 353 CRECI EX     0.0  31.2   66.2            0.0     ROJO                   66.2            OK MTS MINIMO           baja
+  PT 107710385      AQUAXCEL MAXIMA 35% 2.0     0.0 421.3  986.5            0.0     ROJO                  986.5       CRITICO  MTS PLENO           alta
+  PT 107710489 AQUAXCEL ADVANCE 35% 2.0 - A     0.0 106.0  231.0            0.0     ROJO                  231.0       CRITICO  MTS PLENO          media
+  PT 107715263 AQUAXCEL ADAPT OSM 35% AD 2.     0.0 145.2  332.8            0.0     ROJO                  332.8            OK  MTS PLENO          media
+  PT 107715265 AQUAXCEL MAXIMA 35% 2.0 - AP     0.0 438.4 1063.5            0.0     ROJO                 1063.5            OK  MTS PLENO           alta
+  PT 107713809 AQUAXCEL MAXIMA 35% 2.0 - CH     0.0 257.2  632.2            0.0     ROJO                  632.2            OK  MTS PLENO           alta
+  PT 130164297 AQUAXCEL ADAPT OSM35% RD 1.6     0.0 122.3  318.4            0.0     ROJO                  318.4            OK  MTS PLENO          media
+  MP 107544084                    DDGS MAIZ     0.0  21.2   52.9            0.0     ROJO                   52.9       CRITICO        NaN          media
+  MP 107674333        FOSFATO MONODICALCICO     0.0   0.8    2.5            0.0     ROJO                    2.5       CRITICO        NaN           baja
+
+   1 ítems en CERO físico CON demanda esperando -- quiebre real, máxima urgencia:
+nodo       sku                       descripcion  demanda_calificada_tm
+  PT 107708572 AQUAXCEL ADAPT OSM42% RD 1.2 - PR                  44.75
+
+[OK] Tabla 'ddmrp_flujo_neto' — 9 día(s) de histórico
+
+2026-10-12 00:42:31,603 | INFO | calcular_nfp.py OK (2s)
+2026-10-12 00:42:31,604 | INFO | [13/22]
+2026-10-12 00:42:31,607 | INFO | --- Iniciando: detectar_picos_demanda.py (crítico=False) ---
+2026-10-12 00:42:33,753 | INFO | 23 caso(s): un cliente pide en un solo día más de lo que hay en stock
+      sku fecha_entrega                      cliente_nombre  tm_dia  stock_fisico
+107710385    2026-10-09                 GODPROEX PRODUCTORA 294.525        186.70
+107710385    2026-10-09    CRIMASA CRIADEROS DE MARISCOS SA 237.600        186.70
+107710385    2026-10-10         PESQUERA MARYCIELO CIA LTDA 237.600        186.70
+107676353    2026-10-16                           MERSA SAS  92.100          0.15
+107676353    2026-10-16                      COSTAMARKET SA  45.000          0.15
+107708574    2026-10-20     ASOCIACION INTEDECAM - CAMPONIO  44.550          5.80
+107708574    2026-10-31     ASOCIACION INTEDECAM - CAMPONIO  44.550          5.80
+107708574    2026-10-21                      INTEDECAM S.A.  30.650          5.80
+107708572    2026-10-12                         PESALMAR SA  20.000          0.00
+107708574    2026-10-09                     CAMELMAR S.A.S.  15.000          5.80
+107708574    2026-10-28                      INTEDECAM S.A.  14.850          5.80
+107708574    2026-10-22                    CAMATAURA S.A.S.  12.500          5.80
+107708574    2026-10-15                    CAMATAURA S.A.S.  12.500          5.80
+107708572    2026-10-12 LANGOSTINOS DEL PACIFICO LANPAC CIA  12.500          0.00
+107708574    2026-10-14                      INTEDECAM S.A.   9.900          5.80
+107708572    2026-10-10           CAMARONERA AGROMARINA S.A   8.950          0.00
+107708574    2026-10-24                      INTEDECAM S.A.   8.250          5.80
+107708574    2026-10-24         INTEDECAM - ISLA PALO SANTO   8.250          5.80
+107708574    2026-10-14           CABANGREEN INSUMOS S.A.S.   6.600          5.80
+107708574    2026-10-10         INTEDECAM - ISLA PALO SANTO   6.600          5.80
+107708574    2026-10-19                     SASEJUKI S.A.S.   6.250          5.80
+107708574    2026-10-12                     SASEJUKI S.A.S.   6.250          5.80
+107708572    2026-10-08                       PRODUMAR S.A.   3.300          0.00
+
+2026-10-12 00:42:33,754 | INFO | detectar_picos_demanda.py OK (2s)
+2026-10-12 00:42:33,755 | INFO | [14/22]
+2026-10-12 00:42:33,757 | INFO | --- Iniciando: calcular_flete_pedidos.py (crítico=False) ---
+2026-10-12 00:42:51,171 | INFO | Flete por pedido — horizonte 2026-10-12 a 2026-10-25
+  Tabulador: Tabulador de Transporte JUL 2026.xlsx | 197 combinaciones planta-destino | 101 destinos
+  Ship To terrestres: 735 | con región: 730 | overrides manuales: 0
+  Pedidos (snapshot 2026-10-12, hasta 2026-10-25): 540 líneas, 8,124.5 TM
+
+TM faltantes por estado:
+estado
+ELEGIBLE                            1098.8
+POR_NEGOCIO                          564.6
+POR_NEGOCIO_Y_FLETE                  511.4
+SIN_SHIP_TO_TERRESTRE_CON_REGION     232.6
+SIN_TARIFA_EN_UNA_PLANTA               0.0
+
+SKU con flete: 11 | TM faltantes: 2,174.7 | valor máximo de elegir bien: 9,625 USD
+Avisos: {'SHIP_TO_SIN_REGION': 5, 'ARCHIVO': 1}
+[OK] Tablas: flete_pedidos, flete_sku_planta, flete_avisos
+
+2026-10-12 00:42:51,172 | INFO | calcular_flete_pedidos.py OK (17s)
+2026-10-12 00:42:51,172 | INFO | [15/22]
+2026-10-12 00:42:51,174 | INFO | --- Iniciando: optimizar_produccion.py (crítico=True) ---
+2026-10-12 00:43:02,358 | INFO | .00
+GUAYAQUIL|L4      50.0        20.0       20.0               20.0         1.00
+GUAYAQUIL|L5    1705.0        22.0       22.0               22.0         1.00
+GUAYAQUIL|L6    1705.0        22.0       22.0               22.0         1.00
+
+--- Primeros 3 días ---
+
+  2026-10-12 — 1,808 TM
+linea       sku     tm  horas politica motivo
+   L1 107710385 254.50  17.55      MTS PEDIDO
+   L1 107715263 156.30  14.21      MTS PEDIDO
+   L1 107710489  74.70   6.79      MTS PEDIDO
+   L1 107713809  50.00   3.45      MTS PEDIDO
+   L2 107710385 240.00  20.00      MTS PEDIDO
+   L3 107713809  80.00  20.00      MTS PEDIDO
+   L3 107710385  66.54   5.55      MTS PEDIDO
+   L3 107708574  59.30   5.65      MTS PEDIDO
+   L3 130164297  50.00   4.55      MTS PEDIDO
+   L3 107708572  44.75   4.26      MTO PEDIDO
+   L4 107710489  50.00  20.00      MTS PEDIDO
+   L5 107708607 228.70  14.75      MTS PEDIDO
+   L5 107710385 112.30   7.25      MTS PEDIDO
+   L6 107708597 268.99  17.35      MTS PEDIDO
+   L6 107710385  72.01   4.65      MTS PEDIDO
+
+  2026-10-13 — 1,770 TM
+linea       sku     tm  horas politica motivo
+   L1 107708597 304.50  21.00      MTS PEDIDO
+   L1 107676353 136.95  12.45      MTS PEDIDO
+   L1 107715263  94.05   8.55      MTS PEDIDO
+   L2 107708597 240.00  20.00      MTS PEDIDO
+   L3 107713809  80.00  20.00      MTS PEDIDO
+   L3 107708597  78.62   6.55      MTS PEDIDO
+   L3 107708567  53.71   5.11      MTS PEDIDO
+   L3 107710385  50.00   4.17      MTS PEDIDO
+   L3 107713808  50.00   4.17      MTS PEDIDO
+   L5 107714391 283.55  18.29      MTS BUFFER
+   L5 107708597  57.45   3.71      MTS PEDIDO
+   L6 107708597 341.00  22.00      MTS PEDIDO
+
+  2026-10-14 — 1,778 TM
+linea       sku     tm  horas politica motivo
+   L1 107708597 304.50  21.00      MTS BUFFER
+   L1 107715265 138.45  12.59      MTS PEDIDO
+   L1 107710387  92.55   8.41      MTS PEDIDO
+   L2 107708595 110.75   9.23      MTS PEDIDO
+   L2 107708591  79.25   6.60      MTS BUFFER
+   L2 107710385  50.00   4.17      MTS PEDIDO
+   L3 107708597 129.85  10.82      MTS BUFFER
+   L3 107708591 110.15   9.18      MTS BUFFER
+   L3 107714391  80.00  20.00      MTS BUFFER
+   L5 107708597 341.00  22.00      MTS BUFFER
+   L6 107708597 341.00  22.00      MTS BUFFER
+
+============================================================
+DEMANDA EN RIESGO
+============================================================
+  1,311.5 TM de pedidos salen tarde o no salen
+  157.8 TM ni siquiera se alcanzan a producir en el horizonte
+  10 SKU afectados
+
+  El modelo NO elige a qué cliente postergar: Consultar al Simulador
+  Estos son los faltantes para que se resuelva con el
+  dato delante.
+sku        politica
+107710385  MTS         745.4
+107708720  MTS         156.0
+107715263  MTS         142.1
+107710489  MTS         124.7
+107708574  MTS          46.8
+107708607  MTS          45.6
+107708572  MTO          44.8
+130164297  MTS           4.4
+107708845  MTO           1.2
+107680697  MTO           0.6
+
+[OK] Tablas: plan_produccion, plan_cambios, plan_riesgo
+
+2026-10-12 00:43:02,360 | INFO | optimizar_produccion.py OK (11s)
+2026-10-12 00:43:02,361 | INFO | [16/22]
+2026-10-12 00:43:02,363 | INFO | --- Iniciando: plan_compras_mp.py (crítico=False) ---
+2026-10-12 00:43:04,733 | INFO |                      SFF MULTI SPP      COMPRAR_HOY                   5.0       2026-10-12             2027-01-10
+107680783           VITAMINA C MONOFOSFATO 35%      COMPRAR_HOY                 257.5       2026-10-12             2026-12-11
+107680795                MARINE COLESTEROL 12%      COMPRAR_HOY                   0.0       2026-10-12                    NaN
+107680839                  HARINA DE PESCADO F      COMPRAR_HOY                   0.5       2026-10-12             2026-10-27
+107680845                   INHIMOLD P FED ADD      COMPRAR_HOY                 106.2       2026-10-12             2026-11-11
+107708615                              HY-BOND      COMPRAR_HOY                 146.4       2026-10-12             2026-11-11
+107708618                               AMARIL      COMPRAR_HOY                  99.5       2026-10-12             2026-12-11
+107708685                             BIOHYDRO      COMPRAR_HOY                  25.0       2026-10-12             2026-10-27
+107708690                     SELENIO ORGANICO      COMPRAR_HOY                   4.0       2026-10-12             2027-01-10
+107710353                         LYSOLECITHIN      COMPRAR_HOY                 125.2       2026-10-12             2027-01-10
+107710432                DIFORMIATO DE POTASIO      COMPRAR_HOY                   5.7       2026-10-12             2027-01-10
+107712926           FOSFATO MONOCALCICO 22.7 %      COMPRAR_HOY                  21.0       2026-10-12             2026-10-27
+107712927              CARBONATO DE CALCIO 97%      COMPRAR_HOY                  88.2       2026-10-12             2026-12-11
+107714425               HIDROLIZADO DE CAMARON      COMPRAR_HOY                   1.4       2026-10-12             2026-10-27
+107714426                         DIGEMAX AGUA      COMPRAR_HOY                   0.5       2026-10-12             2026-10-27
+107715363                 HIDROLIZADO DE POLLO      COMPRAR_HOY                   0.0       2026-10-12                    NaN
+107715548               HARINA DE PESCADO 55 %      COMPRAR_HOY                 255.2       2026-10-12             2026-10-27
+107716081                      ABIOMIX 20 PLUS      COMPRAR_HOY                  75.6       2026-10-12             2026-10-27
+130099814                            AQUA FORM      COMPRAR_HOY                  21.2       2026-10-12             2026-12-11
+130117032                 FOSFATO MONOPOTASICO      COMPRAR_HOY                 613.7       2026-10-12             2027-01-10
+130124913                CAROPHYLL PINK 10%CWS      COMPRAR_HOY                   0.0       2026-10-12                    NaN
+130155607 SETEX FISH OL EPA+DHA LIQUID BRN BLK      COMPRAR_HOY                  18.7       2026-10-12             2026-11-11
+107680739                 ACEITE CRUDO DE SOYA COMPRAR_ANTES_DE                  25.9       2026-10-23             2026-11-07
+
+[OK] Tablas: plan_compras_mp, compras_sugeridas_mp, proyeccion_mp_diaria, demanda_mp_diaria, plan_compras_avisos
+
+2026-10-12 00:43:04,733 | INFO | plan_compras_mp.py OK (2s)
+2026-10-12 00:43:04,733 | INFO | [17/22]
+2026-10-12 00:43:04,735 | INFO | --- Iniciando: optimizar_secuencia_produccion.py (crítico=True) ---
+2026-10-12 00:43:06,528 | INFO |      0
+2026-10-13     DURAN|L1      1 107676353  GROWER       GROWER 136.95             12.45                       0.83             13.28               21.0               24.0                 0
+2026-10-13     DURAN|L1      2 107715263  GROWER       GROWER  94.05              8.55                       0.83             22.67               21.0               24.0                 0
+2026-10-13     DURAN|L2      1 107708597  GROWER       GROWER 240.00             20.00                       0.83             20.83               20.0               24.0                 0
+2026-10-13     DURAN|L3      1 107708597  GROWER       GROWER  78.62              6.55                       0.83              7.38               20.0               24.0                 0
+2026-10-13     DURAN|L3      2 107710385  GROWER       GROWER  50.00              4.17                       0.83             12.39               20.0               24.0                 0
+2026-10-13     DURAN|L3      3 107713808  GROWER       GROWER  50.00              4.17                       0.83             17.39               20.0               24.0                 0
+2026-10-13     DURAN|L3      4 107708567 STARTER       GROWER  53.71              5.11                       1.75             24.25               20.0               24.0                 1
+2026-10-13 GUAYAQUIL|L1      1 107708597  GROWER       GROWER 304.50             21.00                       0.83             21.83               21.0               24.0                 0
+2026-10-13 GUAYAQUIL|L3      1 107713809  GROWER       GROWER  80.00             20.00                       0.83             20.83               20.0               24.0                 0
+2026-10-13 GUAYAQUIL|L5      1 107708597  GROWER       GROWER  57.45              3.71                       0.83              4.54               22.0               24.0                 0
+2026-10-13 GUAYAQUIL|L5      2 107714391  GROWER       GROWER 283.55             18.29                       0.83             23.67               22.0               24.0                 0
+2026-10-13 GUAYAQUIL|L6      1 107708597  GROWER       GROWER 341.00             22.00                       0.83             22.83               22.0               24.0                 0
+2026-10-14     DURAN|L1      1 107710387  GROWER       GROWER  92.55              8.41                       0.83              9.24               21.0               24.0                 0
+2026-10-14     DURAN|L1      2 107715265  GROWER       GROWER 138.45             12.59                       0.83             22.67               21.0               24.0                 0
+2026-10-14     DURAN|L2      1 107708591  GROWER       GROWER  79.25              6.60                       0.83              7.43               20.0               24.0                 0
+
+[OK] Guardado en tablas secuencia_produccion_pt, secuencia_resumen_pt y en: C:\Users\s545890\OneDrive - Cargill Inc\Simulador Inteligente\secuencia_produccion_20261012.csv
+
+2026-10-12 00:43:06,529 | INFO | optimizar_secuencia_produccion.py OK (2s)
+2026-10-12 00:43:06,529 | INFO | [18/22]
+2026-10-12 00:43:06,532 | INFO | --- Iniciando: Ingesta_MP_Importacion_BOM.py (crítico=False) ---
+2026-10-12 00:43:14,809 | INFO | 
+=== OC de importación de MP ===
+  OC_IMP_STATUS - SAP.xlsx / hoja 'CDI'
+  Encabezados detectados en la fila 2 del Excel
+  1099 filas leídas
+  [AVISO] 135 OC sin ETA real ni estimado -- quedan sin fecha de llegada, no se pueden proyectar.
+  137 OC con status en camino · 962 excluidas (entregadas/anuladas) · 0 con status no reconocido: []
+  1 OC exactamente repetidas -- descartadas.
+
+  [EXCLUIDAS] 7 OC con fecha de llegada anterior a hoy (431.3 TM) -- se asumen recibidas, NO cuentan como tránsito. Actualizar su status en el Excel:
+ oc    sku_mp                    descripcion       status  cantidad_tm fecha_llegada fuente_fecha
+NaN 107548924 LECITINA DE SOYA                   TRÁNSITO         40.4    2026-10-08     ETA_REAL
+NaN 107548924 LECITINA DE SOYA                   TRÁNSITO         38.9    2026-10-09     ETA_REAL
+NaN 107548924 LECITINA DE SOYA                   TRÁNSITO         38.9    2026-10-10     ETA_REAL
+NaN 107548924 LECITINA DE SOYA                   TRÁNSITO         39.2    2026-10-10     ETA_REAL
+NaN 107548924 LECITINA DE SOYA                   TRÁNSITO        200.0    2026-10-11     ETA_REAL
+NaN 107544275            CHOLINE CHLORIDE-70     TRÁNSITO         52.0    2026-10-11     ETA_REAL
+NaN 107716538               FREE FATTY ACIDS POR EMBARCAR         21.9    2026-10-11     ETA_REAL
+
+  66 OC en tránsito real (llegan hoy o después) por 127,038.2 TM
+  13 MP distintas con algo en camino
+
+=== BOM semanal por PT-centro-corrida ===
+  Plan de Produccion.xlsx / hoja 'CONSUMOS'
+  3563 filas leídas
+  % detectado en fracción (0-1) -- convertido a porcentaje.
+  1094 filas EXACTAMENTE repetidas (mismo % ya visto) -- descartadas, no sumadas.
+  15 filas de MP duplicada por PT-centro-fecha-calibre -- sumadas, no descartadas.
+  Las 85 corridas suman ~100% -- OK.
+  26 PT · 59 MP distintas · 85 corridas (fecha+calibre) en el BOM de esta semana
+
+[OK] Tablas: oc_importacion_mp (solo tránsito real), oc_importacion_mp_vencidas (auditoría), bom_semanal_pt
+
+2026-10-12 00:43:14,810 | INFO | Ingesta_MP_Importacion_BOM.py OK (8s)
+2026-10-12 00:43:14,811 | INFO | [19/22]
+2026-10-12 00:43:14,814 | INFO | --- Iniciando: alertar_mp_vs_plan.py (crítico=False) ---
+2026-10-12 00:43:19,077 | INFO | .1                 True
+107680836 ADOXINE SE ANTIOX BHT10% POLVO          media        2026-10-15                 7.45    10.1                 True
+107708690               SELENIO ORGANICO           baja        2026-10-12                 1.41     1.7                 True
+107714690                 AQUA SAVOR DRY           baja        2026-10-12                 0.20     0.5                 True
+107549195                         XTRACT           baja        2026-10-16                 2.53     2.6                 True
+
+  ⚠️  27 de esas MP no tienen ninguna OC de importación en camino registrada -- puede ser MP local (sin visibilidad de OC) o que de verdad no hay nada pedido. Confirmar con Compras antes de tomarlo como certeza.
+
+  MP más urgente: 107537786 -- consumo diario planificado:
+     fecha  consumo_tm
+2026-10-12       187.0
+2026-10-13       181.8
+2026-10-14       169.7
+2026-10-15       225.2
+2026-10-16       102.8
+2026-10-17         8.2
+2026-10-19         3.3
+
+==============================================================
+MP EN RIESGO DE SOBRESTOCK (capital inmovilizado)
+==============================================================
+  17 MP proyectan quedar sobre su TOG en algún día (ordenado por rotación -- baja primero, ahí es donde el sobrestock pesa más en capital inmovilizado):
+
+   sku_mp                   descripcion nivel_rotacion   dia_pico  pico_stock_tm   tog
+107537102              LEVADURA DV AQUA           baja 2026-10-12          98.87   2.2
+107544100                      L-VALINE           baja 2026-10-12          45.03  11.2
+107546536                COLESTEROL 91%           baja 2026-10-19         121.77   0.8
+107680847        SILIMARINA 80% FED ADD           baja 2026-10-12           0.96   0.6
+107708832       COLESTEROL 91% FISH OIL           baja 2026-10-12          22.20   2.3
+107714424        LECITINA DE SOYA POLVO           baja 2026-10-12          44.65   3.3
+107547545           AA LISINA HCL 78.8%          media 2026-10-17         131.64  88.9
+107543308       AP 301/PORK HEMOGLOBINE          media 2026-10-12         295.87  98.4
+107708835         INHIMOLD LIQ FEED ADD          media 2026-10-12          84.65  59.0
+107680844                VITAMINA-E 50%          media 2026-10-19         167.90  58.7
+107544897                   AA TREONINA          media 2026-10-17         698.54 187.5
+107549174                AA TAURINA 99%          media 2026-10-12         231.31 202.7
+107544898                      METAMINO           alta 2026-10-12        1429.88 595.6
+107536338 HARINA DE PESCADO SUPER PRIME           alta 2026-10-12        1221.91 233.3
+107548462           PESCADO HARINA ATUN           alta 2026-10-12        2212.97 419.2
+107712240   HARINA DE PESCADO P MIN 60%           alta 2026-10-12        1106.31 608.0
+107715459                HUEVO EN POLVO           alta 2026-10-12         733.44 654.8
+
+  1 PT del plan sin fórmula esta semana (consumo NO proyectado para ellos): ['107708591']
+
+[OK] Tabla: mp_proyeccion_vs_plan
+
+2026-10-12 00:43:19,078 | INFO | alertar_mp_vs_plan.py OK (4s)
+2026-10-12 00:43:19,079 | INFO | [20/22]
+2026-10-12 00:43:19,083 | INFO | --- Iniciando: validar_buffer_vs_capacidad.py (crítico=False) ---
+2026-10-12 00:43:21,680 | INFO | Buffer vs. plan real — ¿arranca a tiempo? — 2026-10-12
+
+========================================================================
+RIESGO DE STOCKOUT — el plan NO arranca a tiempo según el buffer
+========================================================================
+  7 SKU donde el plan llega tarde o no está programado:
+
+      sku                descripcion  disponible_tm   adu  dias_cobertura_fisica fecha_limite_inicio primer_dia_plan  dias_necesarios_producir
+107708597 NATURISA MAXIMA 35% 1.8 -          1471.2 362.0                    4.1          2026-10-07      2026-10-12                       8.1
+107714391 AQUAXCEL ADVANCE 35 AEP 2.          676.6 268.1                    2.5          2026-10-09      2026-10-13                       4.8
+107710385    AQUAXCEL MAXIMA 35% 2.0          186.7 104.7                    1.8          2026-10-10      2026-10-12                       2.9
+107708591 AQUAXCEL ADAPT OSM35 AD 2.            0.0  19.2                    0.0          2026-10-11      2026-10-14                       0.6
+107708574 AQUAXCEL RAPID 35% SLD 1.2            5.8  18.0                    0.3          2026-10-11      2026-10-12                       0.8
+107676353 PURINA ECOFEED 281 CRECIMI            0.2   5.2                    0.0          2026-10-11      2026-10-13                       0.2
+107708720 PURINA AQUAFEED 353 CRECI           179.3   6.5                   27.6          2026-11-08             NaN                       0.3
+
+  'fecha_limite_inicio': el día más tardío en que la línea puede empezar y aun así llegar antes de agotar el stock. 'primer_dia_plan': cuándo el plan de esta semana de verdad lo tiene programado (vacío = no está en el plan).
+
+========================================================================
+RIESGO DE SOBREPRODUCCIÓN — plan produce sin que el buffer lo pida
+========================================================================
+  Ninguno. Toda la producción del plan responde a algo que el buffer o un pedido justifican.
+
+[OK] Tablas: alerta_stockout_plan (7 filas), alerta_sobreproduccion_plan (0 filas)
+
+2026-10-12 00:43:21,681 | INFO | validar_buffer_vs_capacidad.py OK (3s)
+2026-10-12 00:43:21,682 | INFO | [21/22]
+2026-10-12 00:43:21,684 | INFO | --- Iniciando: validar_plan_vs_buffer.py (crítico=True) ---
+2026-10-12 00:43:23,636 | INFO |      974.6  332.8
+107715265           AQUAXCEL MAXIMA 35% 2.0 - AP 3b-EXCEDE TOG (con pedido, revisar si es necesario)        1031.1                 1977.9   1063.5            2094.6 1063.5
+107713809           AQUAXCEL MAXIMA 35% 2.0 - CH 3b-EXCEDE TOG (con pedido, revisar si es necesario)         443.3                  819.7    632.2            1075.5  632.2
+107708577           NATURISA MAXIMA 35% 1.2 - NA 3b-EXCEDE TOG (con pedido, revisar si es necesario)         243.1                   47.8      0.0             243.1   71.0
+107708585        AQUAXCEL MAXIMA 35% NT 1.2 - OM 3b-EXCEDE TOG (con pedido, revisar si es necesario)          90.9                   89.1     87.4             178.3   89.2
+130164297      AQUAXCEL ADAPT OSM35% RD 1.6 - NA 3b-EXCEDE TOG (con pedido, revisar si es necesario)         149.1                  153.4    318.4             467.5  318.4
+107710387           AQUAXCEL ACTIVE 35% 2.0 - AP 3b-EXCEDE TOG (con pedido, revisar si es necesario)          59.4                   30.9     92.6             151.9  121.0
+107713808         AQUAXCEL RAPID LI 35% 2.0 - NA 3b-EXCEDE TOG (con pedido, revisar si es necesario)         379.1                  184.8    206.4             585.5  400.7
+107708595        AQUAXCEL ADT OSM35% RD 2.0 - CD 3b-EXCEDE TOG (con pedido, revisar si es necesario)         254.4                  140.6    110.8             365.1  224.5
+107708575             AQUAXCEL RAPID 42% SLD 0.8 3b-EXCEDE TOG (con pedido, revisar si es necesario)         245.5                  128.3      0.0             245.5  116.3
+107708594           AQUAXCEL ADAPT OSM35% RD 1.6 3b-EXCEDE TOG (con pedido, revisar si es necesario)          91.1                   33.2      0.0              91.1   57.3
+107713803            AQUAXCEL RAPID 40% 0.8 - NA 3b-EXCEDE TOG (con pedido, revisar si es necesario)         154.8                   41.2      0.0             154.8   90.2
+107710493       AQUAXCEL ADAPT OSM35 RD 2.0 - AP 3b-EXCEDE TOG (con pedido, revisar si es necesario)         901.4                  188.5      0.0             901.4  496.3
+107708578           AQUAXCEL MAXIMA 35% 1.2 - PT 3b-EXCEDE TOG (con pedido, revisar si es necesario)         217.1                   59.7      0.0             217.1   89.0
+107708597           NATURISA MAXIMA 35% 1.8 - NA 3b-EXCEDE TOG (con pedido, revisar si es necesario)        1471.2                 1151.7   2779.0            4250.2 3098.5
+107679409 PURINA ECOFEED 351 CRECIMIENT 2.0 - AP 3b-EXCEDE TOG (con pedido, revisar si es necesario)         524.5                  153.7      0.0             524.5  112.5
+107708720 PURINA AQUAFEED 353 CRECI EXP 2.0 - AP                           4-RIESGO: NO CUBRE PEDIDO         179.3                  234.0      0.0             179.3   66.2
+107708574             AQUAXCEL RAPID 35% SLD 1.2                           4-RIESGO: NO CUBRE PEDIDO           5.8                  235.0    171.3             177.1  171.3
+
+[OK] Tabla: validacion_plan_vs_buffer (59 SKU evaluados)
+
+2026-10-12 00:43:23,636 | INFO | validar_plan_vs_buffer.py OK (2s)
+2026-10-12 00:43:23,637 | INFO | [22/22]
+2026-10-12 00:43:23,639 | INFO | --- Iniciando: alertar_urgencias_plan.py (crítico=True) ---
+2026-10-12 00:43:25,221 | INFO | ⚠️  13 SKU con pedido YA VENCIDO en el plan:
+
+  12 SKU NO se lograron adelantar al primer día -- la capacidad de línea no alcanzó, revisar manualmente (otra línea, turno extra, o aceptar el atraso):
+
+      sku      fecha     tm linea  dias_atraso_pedido
+107708567 2026-10-13  53.71    L3                  11
+107708567 2026-10-17  74.29    L2                  11
+107715263 2026-10-19  82.45    L1                  11
+107715263 2026-10-13  94.05    L1                  11
+107710489 2026-10-15 106.30    L1                  10
+107708597 2026-10-13 341.00    L6                   5
+107708597 2026-10-13 240.00    L2                   5
+107708597 2026-10-13 304.50    L1                   5
+107708597 2026-10-13  78.62    L3                   5
+107708597 2026-10-13  57.45    L5                   5
+107708607 2026-10-16 170.89    L2                   4
+107708607 2026-10-15 181.31    L2                   4
+107708607 2026-10-15  50.00    L3                   4
+107708574 2026-10-16  62.00    L3                   3
+107710385 2026-10-14  50.00    L2                   3
+107710385 2026-10-15  82.46    L3                   3
+107708574 2026-10-17  50.00    L3                   3
+107710385 2026-10-13  50.00    L3                   3
+107715265 2026-10-18 231.00    L1                   3
+107710385 2026-10-15  58.69    L2                   3
+107713808 2026-10-13  50.00    L3                   3
+107713808 2026-10-16  76.40    L6                   3
+107713808 2026-10-16  80.00    L3                   3
+107715265 2026-10-16 231.00    L1                   3
+107715265 2026-10-15 124.70    L1                   3
+107715265 2026-10-14 138.45    L1                   3
+130164297 2026-10-16 155.05    L3                   3
+107715265 2026-10-19 107.35    L1                   3
+130164297 2026-10-16  63.35    L2                   3
+107715265 2026-10-17 231.00    L1                   3
+107710387 2026-10-14  92.55    L1                   2
+107713809 2026-10-16 341.00    L5                   2
+107713809 2026-10-13  80.00    L3                   2
+107713809 2026-10-16  81.20    L1                   2
+
+[OK] 'plan_produccion' actualizado con columnas de urgencia.
+
+2026-10-12 00:43:25,222 | INFO | alertar_urgencias_plan.py OK (2s)
+2026-10-12 00:43:25,223 | INFO | === PIPELINE COMPLETO (200s) -- Todos los pasos OK ===

@@ -1,0 +1,120 @@
+
+====================================================================================================
+1. TARIFAS (USD/TM, promedio de transportistas que cobran)
+----------------------------------------------------------------------------------------------------
+Combinaciones planta-destino: 197 | rangos: ['0,00 - 3,39', '10,21 - 13,20', '13,21 - 16,59', '16,60 - 26,49', '3,40 - 5,20', '5,21 - 8,25', '8,26 - 10,20', 'mas de 26,49']
+
+====================================================================================================
+2. REGIÓN DE CADA SHIP TO (match_region_ship_to.xlsx)
+----------------------------------------------------------------------------------------------------
+Ship To terrestres con región: 730 | Sold To con despacho mixto (terrestre+fluvial): 20
+
+====================================================================================================
+3. CENTRO -> PLANTA (Análisis PT, hoja de pedidos)
+----------------------------------------------------------------------------------------------------
+Centro
+1FZE    PLANTA DURÁN
+1FZO     PLANTA CANE
+2KIV     CD NATURISA
+2KIY     EXPORTACION
+2KKL         FLEXNET
+2KKR         MAQ PCO
+2MBQ      CD DAJAHU 
+2MBR     CD NATURISA
+2MCC      CD DAJAHU 
+
+Interpretación (centro -> ORIGEN del tabulador; vacío = no es DURAN ni GUAYAQUIL o es ambiguo):
+{'1FZE': 'DURAN', '1FZO': 'GUAYAQUIL', '2KIV': '', '2KIY': '', '2KKL': '', '2KKR': '', '2MBQ': '', '2MBR': '', '2MCC': ''}
+
+Exclusiones de planta completa: 48 (SKU distintos: 48)
+
+====================================================================================================
+4. RESULTADO (último snapshot, pedido completo)
+----------------------------------------------------------------------------------------------------
+Snapshot: 2026-10-10 | líneas: 592 | TM: 8,891.7
+
+TM por estado:
+                                  count     sum
+estado                                         
+ELEGIBLE                            161  3302.9
+POR_NEGOCIO                         128  1985.3
+POR_NEGOCIO_Y_FLETE                 254  2467.2
+SIN_SHIP_TO_TERRESTRE_CON_REGION     44  1092.7
+SIN_TARIFA_EN_UNA_PLANTA              5    43.6
+
+TM elegibles por planta actual -> planta sugerida:
+planta_sugerida   DURAN  GUAYAQUIL     All
+planta_actual                             
+BODEGA/OTRO      5707.0     1220.0  6927.0
+DURAN              50.2        0.0    50.2
+GUAYAQUIL         426.5      351.8   778.3
+All              6183.6     1571.8  7755.4
+
+ELEGIBLES (se puede elegir planta): 3,302.9 TM | flete en la planta sugerida: 56,616 USD | en la otra: 69,390 USD | valor de elegir bien: 12,773 USD
+Flete total sugerido (elegibles + por negocio): 149,795 USD para 7,755.5 TM (19.31 USD/TM)
+Clientes mixtos incluidos (solo Ship To terrestres): 4,194.6 TM
+
+Decisiones NO robustas (la planta cambia según el campamento): 2,502.5 TM
+
+Flete estimado del plan actual (líneas ELEGIBLES con centro de planta DURAN/GUAYAQUIL): 8,076 USD
+Ahorro potencial produciendo en la planta sugerida: 2,249 USD (27.9% del flete)
+Sobrecosto de flete por reglas de negocio (SKU obligados a la planta más cara): 5,291 USD
+
+Valor de elegir bien por cliente, ELEGIBLES (top 20):
+                                                   tm             planta  valor_usd
+sold_to    cliente                                                                 
+1800094274 CRIMASA CRIADEROS DE MARISCOS SA     391.0              DURAN     3930.6
+1800083485 GODPROEX PRODUCTORA                  373.3              DURAN     2672.5
+1800093617 OPERADORA Y PROCESADORA DE           643.5              DURAN     1655.8
+1800094776 SOCIEDAD CIVIL DE HECHO CRISMAR      118.8              DURAN     1597.6
+1800083554 PESQUERA MARYCIELO CIA LTDA          237.6              DURAN     1285.4
+1800083314 NATURISA SA                         1095.6  DURAN | GUAYAQUIL      772.0
+1800083415 COSTAMARKET SA                        13.8              DURAN      366.4
+1800083551 CAMARONERA RIO NILO S. A.            115.5  DURAN | GUAYAQUIL      139.6
+1800083359 PREDIOS BONAFIDE S.A.                 10.0              DURAN       84.0
+1800083674 GRAN COLOMBIANA DEL MAR GRANCOMAR     75.0  DURAN | GUAYAQUIL       82.6
+1800094312 CAMALANI S.A.S.                        0.4              DURAN       57.8
+1800094268 BIOGALE S.A.S.                        34.6          GUAYAQUIL       48.8
+1800083682 AQUANATURISA SAS                     119.4  DURAN | GUAYAQUIL       35.8
+1800083705 FAJARDOSLAB S.A.                       0.6          GUAYAQUIL       20.9
+1800093960 CUENTAS EN PARTICIPACION TOYOVIERI    15.0          GUAYAQUIL       13.2
+1800083397 COFIMAR S.A.                          58.8  DURAN | GUAYAQUIL       10.2
+
+Ahorro vs planta actual (solo pedidos con centro PLANTA, top 20):
+                                          tm  ahorro_usd
+sold_to    cliente                                      
+1800083485 GODPROEX PRODUCTORA         294.5      1881.2
+1800093617 OPERADORA Y PROCESADORA DE  132.0       368.3
+1800083314 NATURISA SA                  89.1         0.0
+1800083682 AQUANATURISA SAS             39.6         0.0
+
+Diferencia de tarifa GUAYAQUIL - DURAN (USD/TM) por región, ponderada por TM:
+                                                                                                                                                                                                                                                                                                                                                                                                          tm  dif_usd_tm
+regiones                                                                                                                                                                                                                                                                                                                                                                                                                
+SABANA GRANDE                                                                                                                                                                                                                                                                                                                                                                                        1592.55       -2.62
+AYANGUE | EL MORRO | LAS ESCLUSAS | MACHALA | SAN PABLO                                                                                                                                                                                                                                                                                                                                              1252.35       -0.35
+CHONGON | DURAN | PUERTO INCA                                                                                                                                                                                                                                                                                                                                                                         792.00        2.67
+BALAO                                                                                                                                                                                                                                                                                                                                                                                                 468.90       11.02
+PUERTO BOLIVAR                                                                                                                                                                                                                                                                                                                                                                                        463.52        1.95
+DURAN                                                                                                                                                                                                                                                                                                                                                                                                 416.60        9.63
+CHONGON                                                                                                                                                                                                                                                                                                                                                                                               360.25       -0.97
+TAURA | TENDALES                                                                                                                                                                                                                                                                                                                                                                                      311.00        9.35
+TAURA                                                                                                                                                                                                                                                                                                                                                                                                 277.50       12.09
+GUAYAQUIL                                                                                                                                                                                                                                                                                                                                                                                             261.50        1.61
+HUAQUILLAS | TENGUEL                                                                                                                                                                                                                                                                                                                                                                                  237.60        5.41
+GUAYAQUIL | TAURA                                                                                                                                                                                                                                                                                                                                                                                     222.50       11.60
+LAS ESCLUSAS                                                                                                                                                                                                                                                                                                                                                                                          206.25        1.40
+YAGUACHI                                                                                                                                                                                                                                                                                                                                                                                              203.95        7.29
+COJIMIES | JAMA | PEDERNALES | SAN VICENTE | TOSAGUA                                                                                                                                                                                                                                                                                                                                                  160.80       -0.17
+CHONGON | GUAYAQUIL                                                                                                                                                                                                                                                                                                                                                                                   155.70       -0.15
+BAJO ALTO | BALAO | BALOSA | CHANDUY | EL MORRO | HUAQUILLAS | MACHALA | NARANJAL | PAGUA | PUERTO GRANDE | PUERTO JELI | PUERTO PITAHAYA | TENDALES                                                                                                                                                                                                                                                  118.75       13.45
+AYALAN                                                                                                                                                                                                                                                                                                                                                                                                 73.75       -0.28
+SAFANDO                                                                                                                                                                                                                                                                                                                                                                                                51.00       -1.19
+DURAN | TAURA                                                                                                                                                                                                                                                                                                                                                                                          46.20        8.28
+TENGUEL                                                                                                                                                                                                                                                                                                                                                                                                33.42       20.65
+ARENILLAS | BAJO ALTO | BALAO | BALOSA | BARBONES | CHONGON | CIEN FAMILIAS | COJIMIES | DAULAR | DAULE | DURAN | GUAYAQUIL | HUALTACO | HUAQUILLAS | JAMA | JUJAN | LA HUADA | MACHALA | NARANJAL | PAGUA | PALESTINA | PEDERNALES | PLAYAS | PUERTO BOLIVAR | PUERTO CAYO | PUERTO GRANDE | PUERTO JELI | PUERTO PITAHAYA | SAN ELOY | SAN LORENZO | SANTA ROSA | SEIS DE JULIO | TAURA | TOSAGUA    25.00        8.76
+SANTA LUCIA                                                                                                                                                                                                                                                                                                                                                                                            12.50       -4.10
+PLAYAS                                                                                                                                                                                                                                                                                                                                                                                                 10.00        8.40
+BAHIA | SALINAS                                                                                                                                                                                                                                                                                                                                                                                         1.25       14.58
+
+Detalle por línea: C:\Users\s545890\OneDrive - Cargill Inc\Simulador Inteligente\costeo_flete_pedidos.xlsx
